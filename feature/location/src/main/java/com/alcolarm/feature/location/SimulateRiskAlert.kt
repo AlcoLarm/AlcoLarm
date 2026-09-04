@@ -1,7 +1,7 @@
 package com.alcolarm.feature.location
 
 /**
- * Until Places / geofencing is wired, Home uses this trigger to open the alert flow.
+ * Debug-only simulate path remains available alongside live Places detection.
  */
 object SimulateRiskAlert {
     const val ACTION = "com.alcolarm.app.SIMULATE_RISK_ALERT"
