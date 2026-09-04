@@ -8,12 +8,15 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.alcolarm.app.BuildConfig
 import com.alcolarm.app.ui.SplashScreen
 import com.alcolarm.feature.alert.AlertRoute
 import com.alcolarm.feature.emergency.EmergencyRoute
 import com.alcolarm.feature.location.HomeRoute
 import com.alcolarm.feature.onboarding.OnboardingRoute
 import com.alcolarm.feature.riskplaces.RiskPlacesRoute
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 
 @Composable
@@ -31,11 +34,15 @@ fun AlcoLarmNavHost(
         composable(Routes.Splash) {
             SplashScreen()
             LaunchedEffect(Unit) {
-                delay(700)
-                val complete = startViewModel.onboardingComplete.value
-                val dest = if (complete) Routes.Home else Routes.Onboarding
-                navController.navigate(dest) {
-                    popUpTo(Routes.Splash) { inclusive = true }
+                // Wait for real DataStore emission; keep a short splash floor in parallel.
+                coroutineScope {
+                    val completeDeferred = async { startViewModel.awaitOnboardingComplete() }
+                    delay(700)
+                    val complete = completeDeferred.await()
+                    val dest = if (complete) Routes.Home else Routes.Onboarding
+                    navController.navigate(dest) {
+                        popUpTo(Routes.Splash) { inclusive = true }
+                    }
                 }
             }
         }
@@ -64,6 +71,7 @@ fun AlcoLarmNavHost(
         }
         composable(Routes.Home) {
             HomeRoute(
+                showSimulateAlert = BuildConfig.DEBUG,
                 onSimulateAlert = {
                     navController.navigate(Routes.Alert)
                 },

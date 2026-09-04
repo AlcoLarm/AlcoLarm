@@ -3,29 +3,40 @@ package com.alcolarm.feature.alert
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.alcolarm.core.designsystem.component.AlarmStrip
 import com.alcolarm.core.designsystem.component.DialButton
 import com.alcolarm.core.designsystem.component.SignalSecondaryButton
 import com.alcolarm.core.designsystem.theme.ClearSignalColors
-import com.alcolarm.core.model.QuitReasonId
 import com.alcolarm.core.model.UserProfile
+import com.alcolarm.core.model.friendly
+import java.io.File
 
 @Composable
 fun AlertRoute(
@@ -33,9 +44,11 @@ fun AlertRoute(
     viewModel: AlertViewModel = hiltViewModel(),
 ) {
     val profile by viewModel.profile.collectAsStateWithLifecycle()
+    val familyPhotos by viewModel.familyPhotoFiles.collectAsStateWithLifecycle()
     val context = LocalContext.current
     AlertScreen(
         profile = profile,
+        familyPhotoFiles = familyPhotos,
         onDial = {
             val phone = profile.emergencyContact.phoneNumber
             if (phone.isNotBlank()) {
@@ -53,9 +66,11 @@ fun AlertRoute(
 @Composable
 fun AlertScreen(
     profile: UserProfile,
+    familyPhotoFiles: List<File>,
     onDial: () -> Unit,
     onDismiss: () -> Unit,
 ) {
+    val context = LocalContext.current
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -106,7 +121,7 @@ fun AlertScreen(
                 )
             }
 
-            if (profile.familyNotes.isNotBlank() || profile.familyPhotoUris.isNotEmpty()) {
+            if (profile.familyNotes.isNotBlank() || familyPhotoFiles.isNotEmpty()) {
                 Spacer(Modifier.height(16.dp))
                 Text(
                     text = "Family",
@@ -120,13 +135,27 @@ fun AlertScreen(
                         color = ClearSignalColors.OnDark,
                     )
                 }
-                if (profile.familyPhotoUris.isNotEmpty()) {
-                    Spacer(Modifier.height(8.dp))
-                    Text(
-                        text = "${profile.familyPhotoUris.size} photo(s) saved — preview coming soon",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = ClearSignalColors.TealSupport,
-                    )
+                if (familyPhotoFiles.isNotEmpty()) {
+                    Spacer(Modifier.height(12.dp))
+                    LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        contentPadding = PaddingValues(end = 8.dp),
+                    ) {
+                        items(familyPhotoFiles, key = { it.absolutePath }) { file ->
+                            AsyncImage(
+                                model = ImageRequest.Builder(context)
+                                    .data(file)
+                                    .crossfade(true)
+                                    .build(),
+                                contentDescription = "Family photo",
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .width(220.dp)
+                                    .height(160.dp)
+                                    .clip(RoundedCornerShape(12.dp)),
+                            )
+                        }
+                    }
                 }
             }
 
@@ -142,13 +171,4 @@ fun AlertScreen(
             Spacer(Modifier.height(24.dp))
         }
     }
-}
-
-private fun QuitReasonId.friendly(): String = when (this) {
-    QuitReasonId.HEALTH -> "Health"
-    QuitReasonId.FAMILY -> "Family"
-    QuitReasonId.MONEY -> "Money"
-    QuitReasonId.WORK -> "Work"
-    QuitReasonId.SELF_RESPECT -> "Self-respect"
-    QuitReasonId.OTHER -> "Something else"
 }

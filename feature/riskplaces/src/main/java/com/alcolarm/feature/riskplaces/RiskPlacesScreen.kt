@@ -21,14 +21,7 @@ import com.alcolarm.core.designsystem.component.SignalPrimaryButton
 import com.alcolarm.core.designsystem.theme.ClearSignalColors
 import com.alcolarm.core.model.RiskPlaceId
 
-private val placeLabels = listOf(
-    RiskPlaceId.BAR to "Bar",
-    RiskPlaceId.LIQUOR_STORE to "Liquor store",
-    RiskPlaceId.SUPERMARKET to "Supermarket",
-    RiskPlaceId.PARTY to "Party / gathering",
-    RiskPlaceId.HOME_ALONE to "Home alone",
-    RiskPlaceId.OTHER to "Other",
-)
+private val placeLabels = RiskPlaceId.entries.map { it to it.displayLabel }
 
 @Composable
 fun RiskPlacesRoute(
