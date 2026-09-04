@@ -3,28 +3,30 @@ package com.alcolarm.feature.alert
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -32,7 +34,6 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.alcolarm.core.designsystem.component.AlarmStrip
 import com.alcolarm.core.designsystem.component.DialButton
-import com.alcolarm.core.designsystem.component.SignalSecondaryButton
 import com.alcolarm.core.designsystem.theme.ClearSignalColors
 import com.alcolarm.core.model.UserProfile
 import com.alcolarm.core.model.friendly
@@ -71,104 +72,192 @@ fun AlertScreen(
     onDismiss: () -> Unit,
 ) {
     val context = LocalContext.current
+    val dialLabel = profile.emergencyContact.name
+        .trim()
+        .substringBefore(" ")
+        .ifBlank { "Dial" }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(ClearSignalColors.NearBlack),
     ) {
-        AlarmStrip(message = "Pause. You’ve got this.")
-        Column(
+        AlarmStrip(
+            message = "Pause. You’ve got this.",
+            modifier = Modifier.padding(vertical = 0.dp),
+        )
+
+        Box(
             modifier = Modifier
                 .weight(1f)
-                .verticalScroll(rememberScrollState())
-                .padding(24.dp),
+                .fillMaxWidth(),
         ) {
-            Text(
-                text = "Remember why you started",
-                style = MaterialTheme.typography.headlineMedium,
-                color = ClearSignalColors.OnDark,
-            )
-            Spacer(Modifier.height(16.dp))
-
-            if (profile.quitReasons.isEmpty()) {
-                Text(
-                    text = "Your reasons will show here after onboarding.",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = ClearSignalColors.OnDarkMuted,
-                )
+            // Dominant visual: full-bleed photos or strong dark reasons block
+            if (familyPhotoFiles.isNotEmpty()) {
+                val pagerState = rememberPagerState(pageCount = { familyPhotoFiles.size })
+                HorizontalPager(
+                    state = pagerState,
+                    modifier = Modifier.fillMaxSize(),
+                ) { page ->
+                    AsyncImage(
+                        model = ImageRequest.Builder(context)
+                            .data(familyPhotoFiles[page])
+                            .crossfade(true)
+                            .build(),
+                        contentDescription = "Family photo",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
             } else {
-                profile.quitReasons.forEach { reason ->
-                    Text(
-                        text = "· ${reason.friendly()}",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = ClearSignalColors.OnDark,
-                        modifier = Modifier.padding(vertical = 4.dp),
-                    )
-                }
+                NoPhotoHero(profile = profile)
             }
 
-            if (profile.healthNotes.isNotBlank()) {
-                Spacer(Modifier.height(16.dp))
-                Text(
-                    text = "Health",
-                    style = MaterialTheme.typography.titleLarge,
-                    color = ClearSignalColors.Amber,
-                )
-                Text(
-                    text = profile.healthNotes,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = ClearSignalColors.OnDark,
-                )
-            }
-
-            if (profile.familyNotes.isNotBlank() || familyPhotoFiles.isNotEmpty()) {
-                Spacer(Modifier.height(16.dp))
-                Text(
-                    text = "Family",
-                    style = MaterialTheme.typography.titleLarge,
-                    color = ClearSignalColors.Amber,
-                )
-                if (profile.familyNotes.isNotBlank()) {
-                    Text(
-                        text = profile.familyNotes,
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = ClearSignalColors.OnDark,
+            // Bottom scrim: reasons overlay + dismiss + round dial
+            Column(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .background(
+                        Brush.verticalGradient(
+                            colorStops = arrayOf(
+                                0f to Color.Transparent,
+                                0.25f to ClearSignalColors.NearBlack.copy(alpha = 0.55f),
+                                0.55f to ClearSignalColors.NearBlack.copy(alpha = 0.88f),
+                                1f to ClearSignalColors.NearBlack,
+                            ),
+                        ),
                     )
-                }
+                    .navigationBarsPadding()
+                    .padding(horizontal = 24.dp, vertical = 20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
                 if (familyPhotoFiles.isNotEmpty()) {
+                    OverlayReasons(profile = profile)
                     Spacer(Modifier.height(12.dp))
-                    LazyRow(
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        contentPadding = PaddingValues(end = 8.dp),
-                    ) {
-                        items(familyPhotoFiles, key = { it.absolutePath }) { file ->
-                            AsyncImage(
-                                model = ImageRequest.Builder(context)
-                                    .data(file)
-                                    .crossfade(true)
-                                    .build(),
-                                contentDescription = "Family photo",
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier
-                                    .width(220.dp)
-                                    .height(160.dp)
-                                    .clip(RoundedCornerShape(12.dp)),
-                            )
-                        }
-                    }
                 }
-            }
 
-            Spacer(Modifier.height(28.dp))
-            val contactLabel = profile.emergencyContact.name.ifBlank { "your contact" }
-            DialButton(
-                label = "Dial $contactLabel",
-                onClick = onDial,
-                modifier = Modifier.fillMaxWidth(),
+                TextButton(onClick = onDismiss) {
+                    Text(
+                        text = "I’m OK — close",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = ClearSignalColors.OnDarkMuted,
+                    )
+                }
+                Spacer(Modifier.height(4.dp))
+                DialButton(
+                    label = dialLabel,
+                    onClick = onDial,
+                )
+                Spacer(Modifier.height(8.dp))
+            }
+        }
+    }
+}
+
+@Composable
+private fun NoPhotoHero(profile: UserProfile) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(ClearSignalColors.Surface)
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 28.dp, vertical = 32.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(
+            text = "Remember why you started",
+            style = MaterialTheme.typography.headlineMedium,
+            color = ClearSignalColors.OnDark,
+            textAlign = TextAlign.Center,
+        )
+        Spacer(Modifier.height(24.dp))
+        if (profile.quitReasons.isEmpty()) {
+            Text(
+                text = "Your reasons will show here after onboarding.",
+                style = MaterialTheme.typography.bodyLarge,
+                color = ClearSignalColors.OnDarkMuted,
+                textAlign = TextAlign.Center,
             )
-            Spacer(Modifier.height(16.dp))
-            SignalSecondaryButton(text = "I’m OK — close alert", onClick = onDismiss)
-            Spacer(Modifier.height(24.dp))
+        } else {
+            profile.quitReasons.forEach { reason ->
+                Text(
+                    text = reason.friendly(),
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = ClearSignalColors.OnDark,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(vertical = 8.dp),
+                )
+            }
+        }
+        if (profile.healthNotes.isNotBlank()) {
+            Spacer(Modifier.height(28.dp))
+            Text(
+                text = "Health",
+                style = MaterialTheme.typography.titleMedium,
+                color = ClearSignalColors.Amber,
+            )
+            Spacer(Modifier.height(8.dp))
+            Text(
+                text = profile.healthNotes,
+                style = MaterialTheme.typography.bodyLarge,
+                color = ClearSignalColors.OnDark,
+                textAlign = TextAlign.Center,
+            )
+        }
+        if (profile.familyNotes.isNotBlank()) {
+            Spacer(Modifier.height(28.dp))
+            Text(
+                text = "Family",
+                style = MaterialTheme.typography.titleMedium,
+                color = ClearSignalColors.Amber,
+            )
+            Spacer(Modifier.height(8.dp))
+            Text(
+                text = profile.familyNotes,
+                style = MaterialTheme.typography.bodyLarge,
+                color = ClearSignalColors.OnDark,
+                textAlign = TextAlign.Center,
+            )
+        }
+        // Leave room so content isn't hidden behind the bottom dial overlay
+        Spacer(Modifier.height(220.dp))
+    }
+}
+
+@Composable
+private fun OverlayReasons(profile: UserProfile) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        if (profile.quitReasons.isNotEmpty()) {
+            Text(
+                text = profile.quitReasons.joinToString(" · ") { it.friendly() },
+                style = MaterialTheme.typography.titleMedium,
+                color = ClearSignalColors.OnDark,
+                textAlign = TextAlign.Center,
+                maxLines = 3,
+            )
+        }
+        if (profile.familyNotes.isNotBlank()) {
+            Spacer(Modifier.height(6.dp))
+            Text(
+                text = profile.familyNotes,
+                style = MaterialTheme.typography.bodyMedium,
+                color = ClearSignalColors.OnDarkMuted,
+                textAlign = TextAlign.Center,
+                maxLines = 2,
+            )
+        } else if (profile.healthNotes.isNotBlank()) {
+            Spacer(Modifier.height(6.dp))
+            Text(
+                text = profile.healthNotes,
+                style = MaterialTheme.typography.bodyMedium,
+                color = ClearSignalColors.OnDarkMuted,
+                textAlign = TextAlign.Center,
+                maxLines = 2,
+            )
         }
     }
 }
