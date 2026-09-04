@@ -1,24 +1,21 @@
 package com.alcolarm.app.navigation
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.alcolarm.core.data.UserPreferencesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 @HiltViewModel
 class StartDestinationViewModel @Inject constructor(
-    repository: UserPreferencesRepository,
+    private val repository: UserPreferencesRepository,
 ) : ViewModel() {
-    val onboardingComplete: StateFlow<Boolean> = repository.profile
-        .map { it.onboardingComplete }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.Eagerly,
-            initialValue = false,
-        )
+    /**
+     * Suspends until DataStore emits the first profile snapshot, then returns
+     * whether onboarding is complete. Prefer this over reading a StateFlow
+     * `.value` after a blind delay (which races the initialValue).
+     */
+    suspend fun awaitOnboardingComplete(): Boolean =
+        repository.profile.map { it.onboardingComplete }.first()
 }

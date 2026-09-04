@@ -7,12 +7,12 @@ Android recovery-support app to help avoid alcohol relapse.
 
 ## MVP flow
 
-1. **Splash** → onboarding or home
-2. **Onboarding** — quit-reason chips (health optional text; family optional text + photo picker stub)
+1. **Splash** → waits for DataStore profile, then onboarding or home
+2. **Onboarding** — quit-reason chips (health optional text; family optional text + photo picker)
 3. **Risk places** — chips (bar, liquor store, supermarket, …)
 4. **Emergency contact** — name + phone; test dial via `ACTION_DIAL`
-5. **Home** — summary + prominent **Simulate risk alert** (until Places is wired)
-6. **Alert** — AlarmStrip, reasons/photos placeholders, large Dial button
+5. **Home** — summary; **Simulate risk alert** only in **debug** builds
+6. **Alert** — AlarmStrip, reasons, family photo preview, large Dial button
 
 Privacy: **live location only** (no history APIs); location permissions declared when Places/geofencing lands. Backup/cloud extraction disabled. Family photos copied into app-internal storage. Respectful copy. No backend in this scaffold.
 
@@ -21,7 +21,7 @@ Privacy: **live location only** (no history APIs); location permissions declared
 | Module | Package | Role |
 |--------|---------|------|
 | `:app` | `com.alcolarm.app` | Application, Hilt, NavHost |
-| `:core:model` | `com.alcolarm.core.model` | Domain models |
+| `:core:model` | `com.alcolarm.core.model` | Domain models + display labels |
 | `:core:data` | `com.alcolarm.core.data` | DataStore prefs (no location history) |
 | `:core:designsystem` | `com.alcolarm.core.designsystem` | Clear Signal theme + chips / buttons / AlarmStrip / Dial |
 | `:feature:onboarding` | `com.alcolarm.feature.onboarding` | Quit reasons |
@@ -35,13 +35,22 @@ Privacy: **live location only** (no history APIs); location permissions declared
 1. Clone this repo and open the **root** folder in Android Studio Ladybug+ (AGP 8.7 / JDK 17).
 2. Let Gradle sync (version catalog: `gradle/libs.versions.toml`).
 3. Select the `app` run configuration → Run on an emulator or device (API 26+).
-4. Walk the flow; on Home tap **Simulate risk alert** to open the alert screen.
+4. Walk the flow; on Home (debug builds) tap **Simulate risk alert** to open the alert screen.
 
 ```bash
 ./gradlew :app:assembleDebug
 ```
 
 **Requirements:** JDK 17, Android SDK compile/target 35, minSdk 26.
+
+### Install a debug APK
+
+```bash
+adb install -r /path/to/AlcoLarm-debug.apk
+```
+
+Or sideload the APK on the device (enable Install unknown apps for your file manager).  
+`applicationId`: `com.alcolarm.app` · `versionName`: `0.1.0-mvp` · debug builds are debuggable.
 
 ## Design notes (Clear Signal)
 
@@ -52,5 +61,5 @@ Privacy: **live location only** (no history APIs); location permissions declared
 ## What’s next (not in this PR)
 
 - Wire Fused Location + Places / geofencing (still no history trail)
-- Family photo preview on alert
 - Notification channel for real risk events
+- Release signing / Play Store packaging

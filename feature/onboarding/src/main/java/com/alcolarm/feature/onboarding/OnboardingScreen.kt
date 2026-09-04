@@ -30,14 +30,7 @@ import com.alcolarm.core.designsystem.component.SignalSecondaryButton
 import com.alcolarm.core.designsystem.theme.ClearSignalColors
 import com.alcolarm.core.model.QuitReasonId
 
-private val reasonLabels = listOf(
-    QuitReasonId.HEALTH to "Health",
-    QuitReasonId.FAMILY to "Family",
-    QuitReasonId.MONEY to "Money",
-    QuitReasonId.WORK to "Work",
-    QuitReasonId.SELF_RESPECT to "Self-respect",
-    QuitReasonId.OTHER to "Something else",
-)
+private val reasonLabels = QuitReasonId.entries.map { it to it.displayLabel }
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable

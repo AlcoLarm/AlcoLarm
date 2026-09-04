@@ -17,22 +17,27 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.alcolarm.core.designsystem.component.SignalPrimaryButton
 import com.alcolarm.core.designsystem.theme.ClearSignalColors
-import com.alcolarm.core.model.QuitReasonId
-import com.alcolarm.core.model.RiskPlaceId
 import com.alcolarm.core.model.UserProfile
+import com.alcolarm.core.model.friendly
 
 @Composable
 fun HomeRoute(
+    showSimulateAlert: Boolean,
     onSimulateAlert: () -> Unit,
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val profile by viewModel.profile.collectAsStateWithLifecycle()
-    HomeScreen(profile = profile, onSimulateAlert = onSimulateAlert)
+    HomeScreen(
+        profile = profile,
+        showSimulateAlert = showSimulateAlert,
+        onSimulateAlert = onSimulateAlert,
+    )
 }
 
 @Composable
 fun HomeScreen(
     profile: UserProfile,
+    showSimulateAlert: Boolean,
     onSimulateAlert: () -> Unit,
 ) {
     Column(
@@ -80,17 +85,19 @@ fun HomeScreen(
                 .ifBlank { "Not set" },
         )
 
-        Spacer(Modifier.height(40.dp))
-        Text(
-            text = "Places integration isn’t wired yet. Use Simulate to preview the alert experience.",
-            style = MaterialTheme.typography.bodyMedium,
-            color = ClearSignalColors.OnDarkMuted,
-        )
-        Spacer(Modifier.height(16.dp))
-        SignalPrimaryButton(
-            text = "Simulate risk alert",
-            onClick = onSimulateAlert,
-        )
+        if (showSimulateAlert) {
+            Spacer(Modifier.height(40.dp))
+            Text(
+                text = "Places integration isn’t wired yet. Use Simulate to preview the alert experience.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = ClearSignalColors.OnDarkMuted,
+            )
+            Spacer(Modifier.height(16.dp))
+            SignalPrimaryButton(
+                text = "Simulate risk alert",
+                onClick = onSimulateAlert,
+            )
+        }
         Spacer(Modifier.height(24.dp))
     }
 }
@@ -108,22 +115,4 @@ private fun SummaryBlock(title: String, body: String) {
         style = MaterialTheme.typography.bodyLarge,
         color = ClearSignalColors.OnDark,
     )
-}
-
-private fun QuitReasonId.friendly(): String = when (this) {
-    QuitReasonId.HEALTH -> "Health"
-    QuitReasonId.FAMILY -> "Family"
-    QuitReasonId.MONEY -> "Money"
-    QuitReasonId.WORK -> "Work"
-    QuitReasonId.SELF_RESPECT -> "Self-respect"
-    QuitReasonId.OTHER -> "Something else"
-}
-
-private fun RiskPlaceId.friendly(): String = when (this) {
-    RiskPlaceId.BAR -> "Bar"
-    RiskPlaceId.LIQUOR_STORE -> "Liquor store"
-    RiskPlaceId.SUPERMARKET -> "Supermarket"
-    RiskPlaceId.PARTY -> "Party"
-    RiskPlaceId.HOME_ALONE -> "Home alone"
-    RiskPlaceId.OTHER -> "Other"
 }
