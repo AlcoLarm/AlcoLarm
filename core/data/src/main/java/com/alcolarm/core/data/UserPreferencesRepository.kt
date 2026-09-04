@@ -18,6 +18,8 @@ import javax.inject.Singleton
 /**
  * DataStore-backed prefs. Intentionally stores no location history —
  * only live location is used at runtime (see :feature:location).
+ * Family photo entries are relative paths under filesDir (see [FamilyPhotoStore]),
+ * not grant-dependent content URIs.
  */
 @Singleton
 class UserPreferencesRepository @Inject constructor(

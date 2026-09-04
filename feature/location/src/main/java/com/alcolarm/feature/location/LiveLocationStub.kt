@@ -9,6 +9,10 @@ import javax.inject.Singleton
 /**
  * Live location only — no history buffer, no trail persistence.
  * Places / geofencing will replace the simulate path later.
+ *
+ * ACCESS_FINE_LOCATION / ACCESS_COARSE_LOCATION are not declared in the app
+ * manifest yet; they return when Places / geofencing is wired. The simulate
+ * path does not need runtime location permission.
  */
 data class LiveLocationSample(
     val latitude: Double,

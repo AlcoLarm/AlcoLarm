@@ -46,10 +46,11 @@ fun OnboardingRoute(
     viewModel: OnboardingViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    // OpenDocument so we can takePersistableUriPermission; bytes are then copied app-scoped.
     val photoPicker = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent(),
+        contract = ActivityResultContracts.OpenDocument(),
     ) { uri: Uri? ->
-        uri?.let { viewModel.addFamilyPhotoUri(it.toString()) }
+        uri?.let { viewModel.importFamilyPhoto(it) }
     }
 
     OnboardingScreen(
@@ -57,8 +58,8 @@ fun OnboardingRoute(
         onToggleReason = viewModel::toggleReason,
         onHealthNotes = viewModel::updateHealthNotes,
         onFamilyNotes = viewModel::updateFamilyNotes,
-        onPickPhoto = { photoPicker.launch("image/*") },
-        onRemovePhoto = viewModel::removeFamilyPhotoUri,
+        onPickPhoto = { photoPicker.launch(arrayOf("image/*")) },
+        onRemovePhoto = viewModel::removeFamilyPhoto,
         onContinue = { viewModel.saveAndContinue(onContinue) },
     )
 }
@@ -149,7 +150,7 @@ fun OnboardingScreen(
                 },
                 onClick = onPickPhoto,
             )
-            state.familyPhotoUris.forEach { uri ->
+            state.familyPhotoUris.forEach { _ ->
                 Spacer(Modifier.height(8.dp))
                 Text(
                     text = "Photo saved · tap to remove",
@@ -159,7 +160,6 @@ fun OnboardingScreen(
                         .fillMaxWidth()
                         .padding(vertical = 4.dp),
                 )
-                // MVP: tap secondary to remove last for simplicity via chip-like row
             }
             if (state.familyPhotoUris.isNotEmpty()) {
                 SignalSecondaryButton(

@@ -8,6 +8,7 @@ data class UserProfile(
     val quitReasons: Set<QuitReasonId> = emptySet(),
     val healthNotes: String = "",
     val familyNotes: String = "",
+    /** Relative paths under filesDir (family_photos/…), not content URIs. */
     val familyPhotoUris: List<String> = emptyList(),
     val riskPlaces: Set<RiskPlaceId> = emptySet(),
     val emergencyContact: EmergencyContact = EmergencyContact(),

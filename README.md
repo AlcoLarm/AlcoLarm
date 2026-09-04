@@ -14,7 +14,7 @@ Android recovery-support app to help avoid alcohol relapse.
 5. **Home** — summary + prominent **Simulate risk alert** (until Places is wired)
 6. **Alert** — AlarmStrip, reasons/photos placeholders, large Dial button
 
-Privacy: **live location only** (no history APIs). Minimal permissions. Respectful copy. No backend in this scaffold.
+Privacy: **live location only** (no history APIs); location permissions declared when Places/geofencing lands. Backup/cloud extraction disabled. Family photos copied into app-internal storage. Respectful copy. No backend in this scaffold.
 
 ## Modules
 
