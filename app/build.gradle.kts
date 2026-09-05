@@ -1,5 +1,3 @@
-import java.util.Properties
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -7,17 +5,6 @@ plugins {
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.ksp)
 }
-
-fun resolveMapsApiKey(): String {
-    val props = Properties()
-    val file = rootProject.file("local.properties")
-    if (file.exists()) {
-        file.inputStream().use { props.load(it) }
-    }
-    return props.getProperty("MAPS_API_KEY", "")
-}
-
-val mapsApiKey = resolveMapsApiKey()
 
 android {
     namespace = "com.alcolarm.app"
@@ -27,16 +14,9 @@ android {
         applicationId = "com.alcolarm.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 3
-        versionName = "0.2.0-mvp"
+        versionCode = 4
+        versionName = "0.3.0-mvp"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        buildConfigField(
-            "String",
-            "MAPS_API_KEY",
-            "\"${mapsApiKey.replace("\\", "\\\\").replace("\"", "\\\"")}\"",
-        )
-        manifestPlaceholders["MAPS_API_KEY"] =
-            mapsApiKey.ifBlank { "MISSING_MAPS_API_KEY" }
     }
 
     buildTypes {
@@ -93,7 +73,6 @@ dependencies {
     implementation(libs.hilt.android)
     implementation(libs.hilt.navigation.compose)
     implementation(libs.play.services.location)
-    implementation(libs.play.services.maps)
     ksp(libs.hilt.compiler)
     debugImplementation(libs.androidx.compose.ui.tooling)
 }

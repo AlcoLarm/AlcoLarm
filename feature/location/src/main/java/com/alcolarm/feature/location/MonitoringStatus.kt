@@ -4,7 +4,6 @@ import com.alcolarm.core.model.RiskPlaceId
 
 enum class MonitoringUiState {
     PERMISSION_NEEDED,
-    MISSING_API_KEY,
     NO_DETECTABLE_RISKS,
     WATCHING,
     NEAR_RISK,

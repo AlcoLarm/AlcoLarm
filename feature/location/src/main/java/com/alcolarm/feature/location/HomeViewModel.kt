@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import com.alcolarm.core.data.UserPreferencesRepository
 import com.alcolarm.core.model.RiskPlaceId
 import com.alcolarm.core.model.UserProfile
-import com.alcolarm.core.model.friendly
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -89,7 +88,7 @@ class HomeViewModel @Inject constructor(
                 permissionGranted = granted,
                 uiState = if (granted) MonitoringUiState.WATCHING else MonitoringUiState.PERMISSION_NEEDED,
                 statusMessage = if (granted) {
-                    "Watching nearby…"
+                    "Watching nearby risk places via open map data…"
                 } else {
                     "Permission needed"
                 },
@@ -122,17 +121,6 @@ class HomeViewModel @Inject constructor(
             }
             return
         }
-        if (!detector.hasApiKey()) {
-            _monitoring.update {
-                it.copy(
-                    permissionGranted = true,
-                    monitoringActive = false,
-                    uiState = MonitoringUiState.MISSING_API_KEY,
-                    statusMessage = "Add MAPS_API_KEY in local.properties to enable live detection",
-                )
-            }
-            // Still start location so permission/tracking UI is exercisable; checks no-op without key.
-        }
 
         locationTracker.start()
         _monitoring.update {
@@ -149,7 +137,7 @@ class HomeViewModel @Inject constructor(
                 delay(CHECK_INTERVAL_MS)
             }
         }
-        Log.d(TAG, "Risk monitoring loop started")
+        Log.d(TAG, "Risk monitoring loop started (OSM Overpass)")
     }
 
     fun stopMonitoring() {
@@ -172,7 +160,7 @@ class HomeViewModel @Inject constructor(
         _monitoring.update {
             it.copy(
                 uiState = MonitoringUiState.WATCHING,
-                statusMessage = "Watching nearby…",
+                statusMessage = "Watching nearby risk places via open map data…",
                 lastMatchedPlaceName = null,
                 lastMatchedRisk = null,
             )
@@ -210,21 +198,11 @@ class HomeViewModel @Inject constructor(
         }
 
         val risks = profile.value.riskPlaces
-        if (PlacesTypeMapping.detectable(risks).isEmpty()) {
+        if (OsmTagMapping.detectable(risks).isEmpty()) {
             _monitoring.update {
                 it.copy(
                     uiState = MonitoringUiState.NO_DETECTABLE_RISKS,
                     statusMessage = "Select bar / liquor store / supermarket / party to watch",
-                )
-            }
-            return
-        }
-
-        if (!detector.hasApiKey()) {
-            _monitoring.update {
-                it.copy(
-                    uiState = MonitoringUiState.MISSING_API_KEY,
-                    statusMessage = "Add MAPS_API_KEY in local.properties to enable live detection",
                 )
             }
             return
@@ -289,17 +267,9 @@ class HomeViewModel @Inject constructor(
                 _monitoring.update {
                     it.copy(
                         uiState = MonitoringUiState.WATCHING,
-                        statusMessage = "Watching nearby…",
+                        statusMessage = "Watching nearby risk places via open map data…",
                         lastMatchedPlaceName = null,
                         lastMatchedRisk = null,
-                    )
-                }
-            }
-            RiskDetectResult.MissingApiKey -> {
-                _monitoring.update {
-                    it.copy(
-                        uiState = MonitoringUiState.MISSING_API_KEY,
-                        statusMessage = "Add MAPS_API_KEY in local.properties to enable live detection",
                     )
                 }
             }
@@ -328,13 +298,7 @@ class HomeViewModel @Inject constructor(
                     uiState = MonitoringUiState.PERMISSION_NEEDED,
                     statusMessage = "Permission needed",
                 )
-                !detector.hasApiKey() -> current.copy(
-                    permissionGranted = true,
-                    monitoringActive = tracking,
-                    uiState = MonitoringUiState.MISSING_API_KEY,
-                    statusMessage = "Add MAPS_API_KEY in local.properties to enable live detection",
-                )
-                PlacesTypeMapping.detectable(risks).isEmpty() -> current.copy(
+                OsmTagMapping.detectable(risks).isEmpty() -> current.copy(
                     permissionGranted = true,
                     monitoringActive = tracking,
                     uiState = MonitoringUiState.NO_DETECTABLE_RISKS,
@@ -344,11 +308,15 @@ class HomeViewModel @Inject constructor(
                     permissionGranted = true,
                     monitoringActive = tracking,
                 )
+                current.uiState == MonitoringUiState.CHECK_ERROR -> current.copy(
+                    permissionGranted = true,
+                    monitoringActive = tracking,
+                )
                 else -> current.copy(
                     permissionGranted = true,
                     monitoringActive = tracking,
                     uiState = MonitoringUiState.WATCHING,
-                    statusMessage = "Watching nearby…",
+                    statusMessage = "Watching nearby risk places via open map data…",
                 )
             }
         }

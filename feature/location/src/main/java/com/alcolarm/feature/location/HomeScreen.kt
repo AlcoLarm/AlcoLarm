@@ -122,7 +122,7 @@ fun HomeScreen(
         )
         Spacer(Modifier.height(8.dp))
         Text(
-            text = "Live location watches for places you marked as risky. We don’t keep a location history.",
+            text = "Watching nearby risk places via open map data. We don’t keep a location history.",
             style = MaterialTheme.typography.bodyLarge,
             color = ClearSignalColors.OnDarkMuted,
         )
@@ -175,7 +175,7 @@ fun HomeScreen(
         if (showSimulateAlert) {
             Spacer(Modifier.height(40.dp))
             Text(
-                text = "Debug: Simulate still works even without Places / location.",
+                text = "Debug: Simulate still works even without location.",
                 style = MaterialTheme.typography.bodyMedium,
                 color = ClearSignalColors.OnDarkMuted,
             )
@@ -194,7 +194,6 @@ private fun MonitoringCard(monitoring: HomeMonitoringUi) {
     val accent = when (monitoring.uiState) {
         MonitoringUiState.NEAR_RISK -> ClearSignalColors.Amber
         MonitoringUiState.PERMISSION_NEEDED,
-        MonitoringUiState.MISSING_API_KEY,
         MonitoringUiState.CHECK_ERROR,
         -> ClearSignalColors.OnDarkMuted
         else -> ClearSignalColors.TealSupport
