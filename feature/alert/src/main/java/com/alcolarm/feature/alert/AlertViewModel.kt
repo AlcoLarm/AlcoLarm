@@ -17,6 +17,7 @@ import javax.inject.Inject
 class AlertViewModel @Inject constructor(
     repository: UserPreferencesRepository,
     familyPhotoStore: FamilyPhotoStore,
+    private val callStyleAlert: CallStyleAlertController,
 ) : ViewModel() {
     val profile: StateFlow<UserProfile> = repository.profile.stateIn(
         scope = viewModelScope,
@@ -34,4 +35,21 @@ class AlertViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = emptyList(),
         )
+
+    /** Start anonymous call-style ring / vibrate / full-screen notification. */
+    fun startCallStyleAlert() {
+        val contact = profile.value.emergencyContact
+        val name = contact.name.trim().takeIf { it.isNotEmpty() }
+        val phone = contact.phoneNumber.trim().takeIf { it.isNotEmpty() }
+        callStyleAlert.start(name, phone)
+    }
+
+    fun stopCallStyleAlert() {
+        callStyleAlert.stop()
+    }
+
+    override fun onCleared() {
+        callStyleAlert.stop()
+        super.onCleared()
+    }
 }

@@ -37,6 +37,8 @@ fun AlcoLarmNavHost(
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
     startViewModel: StartDestinationViewModel = hiltViewModel(),
+    openAlertRequested: Boolean = false,
+    onOpenAlertConsumed: () -> Unit = {},
 ) {
     val context = LocalContext.current
     val alertBus = EntryPointAccessors.fromApplication(
@@ -57,6 +59,25 @@ fun AlcoLarmNavHost(
                 "Risk alert navigate simulated=${event.simulated} risk=${event.riskPlaceId}",
             )
         }
+    }
+
+    LaunchedEffect(openAlertRequested) {
+        if (!openAlertRequested) return@LaunchedEffect
+        val current = navController.currentDestination?.route
+        if (current != Routes.Alert) {
+            // Ensure we leave splash/onboarding if needed — prefer Home→Alert stack.
+            if (current == Routes.Splash || current == null) {
+                navController.navigate(Routes.Home) {
+                    popUpTo(Routes.Splash) { inclusive = true }
+                    launchSingleTop = true
+                }
+            }
+            navController.navigate(Routes.Alert) {
+                launchSingleTop = true
+            }
+        }
+        onOpenAlertConsumed()
+        Log.d("AlcoLarm.Nav", "Opened alert from full-screen / notification intent")
     }
 
     NavHost(

@@ -429,7 +429,7 @@ class HomeViewModel @Inject constructor(
         private const val TAG = "AlcoLarm.HomeVM"
 
         /** Local still/dwell evaluation cadence (Overpass is throttled separately). */
-        private const val EVAL_INTERVAL_MS = 10_000L
+        private const val EVAL_INTERVAL_MS = 5_000L
 
         /** Min gap between Overpass queries while the user is still. */
         private const val OVERPASS_INTERVAL_MS = 25_000L
@@ -450,10 +450,10 @@ class HomeViewModel @Inject constructor(
         const val STILL_WINDOW_MS = 30_000L
 
         /**
-         * Continuous still + nearby time required before alerting (~25–30 s).
+         * Continuous still + nearby time required before alerting (~15 s).
          * Intentionally short so the user is warned before they can grab a drink — not 2 minutes.
          */
-        const val DWELL_REQUIRED_MS = 30_000L
+        const val DWELL_REQUIRED_MS = 15_000L
 
         /** After dismiss, do not re-alert for this long. */
         private const val ALERT_COOLDOWN_MS = 5 * 60_000L
