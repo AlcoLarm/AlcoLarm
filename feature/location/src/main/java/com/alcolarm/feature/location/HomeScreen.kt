@@ -1,8 +1,11 @@
 package com.alcolarm.feature.location
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
+import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -51,6 +54,7 @@ fun HomeRoute(
     var notificationsGranted by remember {
         mutableStateOf(hasNotificationPermission(context))
     }
+    var showBackgroundRationale by remember { mutableStateOf(false) }
 
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions(),
@@ -58,6 +62,22 @@ fun HomeRoute(
         val granted = result[Manifest.permission.ACCESS_FINE_LOCATION] == true ||
             result[Manifest.permission.ACCESS_COARSE_LOCATION] == true
         viewModel.onPermissionResult(granted)
+        if (granted && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            // Fine first, then offer background (system requires this order).
+            showBackgroundRationale = !hasBackgroundLocationPermission(context)
+        }
+    }
+
+    val backgroundPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission(),
+    ) { granted ->
+        showBackgroundRationale = false
+        if (granted) {
+            viewModel.onBackgroundLocationGranted()
+        } else {
+            // Still may need Settings for "Allow all the time" on many OEMs.
+            viewModel.refreshPermissionFromSystem()
+        }
     }
 
     val notificationLauncher = rememberLauncherForActivityResult(
@@ -90,14 +110,19 @@ fun HomeRoute(
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
                 Lifecycle.Event.ON_RESUME -> {
-                    viewModel.refreshPermissionFromSystem()
                     notificationsGranted = hasNotificationPermission(context)
-                    if (hasLocationPermission()) {
-                        viewModel.startMonitoring()
+                    if (hasBackgroundLocationPermission(context)) {
+                        showBackgroundRationale = false
+                    } else if (hasLocationPermission() &&
+                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
+                    ) {
+                        showBackgroundRationale = true
                     }
+                    viewModel.onHomeResumed()
                 }
                 Lifecycle.Event.ON_PAUSE -> {
-                    viewModel.stopMonitoring()
+                    // Background FGS keeps running; foreground-only stops inside manager.
+                    viewModel.onHomePaused()
                 }
                 else -> Unit
             }
@@ -105,7 +130,8 @@ fun HomeRoute(
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
-            viewModel.stopMonitoring()
+            // Do NOT stop background watch when leaving composition.
+            viewModel.onHomePaused()
         }
     }
 
@@ -114,6 +140,9 @@ fun HomeRoute(
         monitoring = monitoring,
         showSimulateAlert = showSimulateAlert,
         notificationsGranted = notificationsGranted,
+        showBackgroundRationale = showBackgroundRationale &&
+            hasLocationPermission() &&
+            !hasBackgroundLocationPermission(context),
         onRequestLocationPermission = {
             permissionLauncher.launch(
                 arrayOf(
@@ -122,6 +151,24 @@ fun HomeRoute(
                 ),
             )
         },
+        onRequestBackgroundLocation = {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                // Android 11+ often ignores the runtime dialog for background —
+                // open app settings where the user can pick "Allow all the time".
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    val intent = Intent(
+                        Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                        Uri.fromParts("package", context.packageName, null),
+                    )
+                    context.startActivity(intent)
+                } else {
+                    backgroundPermissionLauncher.launch(
+                        Manifest.permission.ACCESS_BACKGROUND_LOCATION,
+                    )
+                }
+            }
+        },
+        onDismissBackgroundRationale = { showBackgroundRationale = false },
         onRequestNotificationPermission = {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
@@ -139,13 +186,24 @@ private fun hasNotificationPermission(context: android.content.Context): Boolean
     ) == PackageManager.PERMISSION_GRANTED
 }
 
+private fun hasBackgroundLocationPermission(context: android.content.Context): Boolean {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return true
+    return ContextCompat.checkSelfPermission(
+        context,
+        Manifest.permission.ACCESS_BACKGROUND_LOCATION,
+    ) == PackageManager.PERMISSION_GRANTED
+}
+
 @Composable
 fun HomeScreen(
     profile: UserProfile,
     monitoring: HomeMonitoringUi,
     showSimulateAlert: Boolean,
     notificationsGranted: Boolean,
+    showBackgroundRationale: Boolean,
     onRequestLocationPermission: () -> Unit,
+    onRequestBackgroundLocation: () -> Unit,
+    onDismissBackgroundRationale: () -> Unit,
     onRequestNotificationPermission: () -> Unit,
     onSimulateAlert: () -> Unit,
 ) {
@@ -181,6 +239,21 @@ fun HomeScreen(
             SignalPrimaryButton(
                 text = "Allow location",
                 onClick = onRequestLocationPermission,
+            )
+        }
+
+        if (showBackgroundRationale || monitoring.needsBackgroundLocation) {
+            Spacer(Modifier.height(16.dp))
+            Text(
+                text = "To keep alerts working when the app is closed, allow location “all the time” in system settings. " +
+                    "AlcoLarm shows a simple “Location on” notice while watching — nothing about alcohol or recovery.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = ClearSignalColors.OnDarkMuted,
+            )
+            Spacer(Modifier.height(12.dp))
+            SignalPrimaryButton(
+                text = "Allow background location",
+                onClick = onRequestBackgroundLocation,
             )
         }
 
@@ -273,7 +346,11 @@ private fun MonitoringCard(monitoring: HomeMonitoringUi) {
         Text(
             text = when {
                 !monitoring.permissionGranted -> "Location: off"
-                monitoring.monitoringActive -> "Monitoring: on (foreground)"
+                monitoring.watchMode == WatchModeUi.BACKGROUND ->
+                    "Monitoring: on (background)"
+                monitoring.watchMode == WatchModeUi.FOREGROUND_ONLY ||
+                    monitoring.monitoringActive ->
+                    "Monitoring: on (foreground)"
                 else -> "Monitoring: paused"
             },
             style = MaterialTheme.typography.bodyMedium,

@@ -78,6 +78,17 @@ class UserPreferencesRepository @Inject constructor(
         }
     }
 
+    /** User wants continuous watch via foreground service when background location is granted. */
+    val backgroundWatchEnabled: Flow<Boolean> = dataStore.data.map { prefs ->
+        prefs[Keys.BACKGROUND_WATCH_ENABLED] ?: true
+    }
+
+    suspend fun setBackgroundWatchEnabled(enabled: Boolean) {
+        dataStore.edit { prefs ->
+            prefs[Keys.BACKGROUND_WATCH_ENABLED] = enabled
+        }
+    }
+
     private object Keys {
         val ONBOARDING_COMPLETE = booleanPreferencesKey("onboarding_complete")
         val QUIT_REASONS = stringSetPreferencesKey("quit_reasons")
@@ -87,5 +98,6 @@ class UserPreferencesRepository @Inject constructor(
         val RISK_PLACES = stringSetPreferencesKey("risk_places")
         val EMERGENCY_NAME = stringPreferencesKey("emergency_name")
         val EMERGENCY_PHONE = stringPreferencesKey("emergency_phone")
+        val BACKGROUND_WATCH_ENABLED = booleanPreferencesKey("background_watch_enabled")
     }
 }
