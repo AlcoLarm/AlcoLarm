@@ -14,8 +14,8 @@ android {
         applicationId = "com.alcolarm.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 4
-        versionName = "0.3.0-mvp"
+        versionCode = 5
+        versionName = "0.3.1-mvp"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
