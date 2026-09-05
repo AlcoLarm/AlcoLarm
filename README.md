@@ -4,7 +4,7 @@ Android recovery-support app to help avoid alcohol relapse.
 
 **Stack:** Kotlin · Jetpack Compose · Hilt · multi-module Gradle (Kotlin DSL)  
 **Design:** Quiet Companion (cream/sage) + large soft pause banners + warm amber dial  
-**Version:** `0.5.3-mvp` (versionCode 11)
+**Version:** `0.5.4-mvp` (versionCode 12)
 
 ## MVP flow
 
@@ -13,7 +13,7 @@ Android recovery-support app to help avoid alcohol relapse.
 3. **Risk places** — chips (bar, liquor store, supermarket, …)
 4. **Emergency contact** — name + phone; test dial via `ACTION_DIAL`
 5. **Home** — summary + **live risk watch** (Fused Location + OpenStreetMap Overpass); large soft sage **PAUSE** banner when near risk
-6. **Alert** — large tappable **PAUSE** banner (silences ring/vibrate → optional reflection), loved-ones photos/notes (no “Family” heading), warm amber Dial
+6. **Alert** — on enter, **auto-dials** emergency contact via `ACTION_DIAL` (once/session); large tappable **PAUSE** banner (silences ring/vibrate → optional reflection), loved-ones photos/notes, warm amber Dial as retry
 7. **Dial return** — soft choice *I reached them* / *They didn’t answer* → praise+Home or affirmation + **mandatory** reflection
 8. **Reflection** (`:feature:reflection`) — two fill-in questions the user must write (turn around vs drink again); skippable from Pause (“Not now”); mandatory after call no-answer (affirmation first)
 
@@ -28,7 +28,7 @@ Privacy: **live location only** (current sample + short in-memory ring for still
 | Mapping | `BAR→amenity=bar\|pub\|biergarten`, `LIQUOR_STORE→shop=alcohol\|wine`, `SUPERMARKET→shop=supermarket\|convenience`, `PARTY→amenity=nightclub\|bar` (`HOME_ALONE` / `OTHER` skipped) |
 | Still | `STOP_SPEED_MPS = 0.7` when speed is present; else displacement &lt; ~18 m over last ~30 s (in-memory ring only) |
 | Dwell | Still **and** nearby continuously for `DWELL_REQUIRED_MS = 15_000` (~15 s); pass-by / leave radius resets the timer |
-| Alert UX | Default **ringtone** + call-like vibration + high-priority notification with `fullScreenIntent`; lock-screen title is anonymous (**Incoming call** / emergency contact name) — not alcohol/risk wording |
+| Alert UX | On alert enter, **auto `ACTION_DIAL`** to emergency contact (once/session; Dial button = retry). Default **ringtone** stops when dialer opens + call-like vibration + high-priority notification with `fullScreenIntent`; lock-screen title is anonymous (**Incoming call** / emergency contact name) — not alcohol/risk wording |
 | Cooldown | 5 min after dismiss |
 | Background | **`RiskWatchService`** foreground service (`foregroundServiceType=location`) hosts `RiskWatchEngine`. Home **ON_PAUSE does not stop** monitoring when background watch is active. Ongoing notification: **“AlcoLarm is active” / “Location on”** (never alcohol / relapse / risk / recovery) |
 
@@ -78,7 +78,7 @@ No `MAPS_API_KEY` in `local.properties` is needed for live detection.
 adb install -r /path/to/AlcoLarm-debug.apk
 ```
 
-`applicationId`: `com.alcolarm.app` · `versionName`: `0.5.3-mvp`
+`applicationId`: `com.alcolarm.app` · `versionName`: `0.5.4-mvp`
 
 ## Design notes (v0.5)
 

@@ -2,6 +2,7 @@ package com.alcolarm.feature.alert
 
 import android.content.Intent
 import android.net.Uri
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,7 +22,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -55,6 +60,8 @@ fun AlertRoute(
     val familyPhotos by viewModel.familyPhotoFiles.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
+    // Survives process death within the same alert navigation entry.
+    var autoDialLaunched by rememberSaveable { mutableStateOf(false) }
 
     DisposableEffect(Unit) {
         viewModel.startCallStyleAlert()
@@ -76,6 +83,34 @@ fun AlertRoute(
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
+    // Auto-dial once per alert session as soon as DataStore profile is ready.
+    // Manual Dial button remains as a retry. Returning from the dialer does not re-fire.
+    LaunchedEffect(Unit) {
+        if (autoDialLaunched) return@LaunchedEffect
+        when (val decision = viewModel.decideAutoDial()) {
+            is AutoDialDecision.Dial -> {
+                autoDialLaunched = true
+                launchEmergencyDial(
+                    context = context,
+                    phone = decision.phone,
+                    stopRingtone = { viewModel.stopCallStyleAlert() },
+                    markDialStarted = { viewModel.markDialStarted() },
+                )
+            }
+            AutoDialDecision.MissingContact -> {
+                autoDialLaunched = true
+                Toast.makeText(
+                    context,
+                    "Add emergency contact in Settings",
+                    Toast.LENGTH_LONG,
+                ).show()
+            }
+            AutoDialDecision.AlreadyHandled -> {
+                autoDialLaunched = true
+            }
+        }
+    }
+
     AlertScreen(
         profile = profile,
         familyPhotoFiles = familyPhotos,
@@ -84,15 +119,20 @@ fun AlertRoute(
             onPauseReflect()
         },
         onDial = {
-            viewModel.stopCallStyleAlert()
-            val phone = profile.emergencyContact.phoneNumber
+            val phone = profile.emergencyContact.phoneNumber.trim()
             if (phone.isNotBlank()) {
-                viewModel.markDialStarted()
-                context.startActivity(
-                    Intent(Intent.ACTION_DIAL).apply {
-                        data = Uri.parse("tel:$phone")
-                    },
+                launchEmergencyDial(
+                    context = context,
+                    phone = phone,
+                    stopRingtone = { viewModel.stopCallStyleAlert() },
+                    markDialStarted = { viewModel.markDialStarted() },
                 )
+            } else {
+                Toast.makeText(
+                    context,
+                    "Add emergency contact in Settings",
+                    Toast.LENGTH_LONG,
+                ).show()
             }
         },
         onDismiss = {
@@ -100,6 +140,27 @@ fun AlertRoute(
             onDismiss()
         },
     )
+}
+
+/**
+ * Opens the system dialer with [phone] pre-filled (ACTION_DIAL — no CALL_PHONE permission).
+ * Stops call-style ringtone/vibrate so they do not fight the Phone app.
+ */
+private fun launchEmergencyDial(
+    context: android.content.Context,
+    phone: String,
+    stopRingtone: () -> Unit,
+    markDialStarted: () -> Unit,
+) {
+    stopRingtone()
+    markDialStarted()
+    runCatching {
+        context.startActivity(
+            Intent(Intent.ACTION_DIAL).apply {
+                data = Uri.parse("tel:$phone")
+            },
+        )
+    }
 }
 
 @Composable
