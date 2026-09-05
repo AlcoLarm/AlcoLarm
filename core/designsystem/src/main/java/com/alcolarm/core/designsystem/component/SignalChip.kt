@@ -34,12 +34,12 @@ fun SignalChip(
         colors = FilterChipDefaults.filterChipColors(
             containerColor = ClearSignalColors.SurfaceElevated,
             labelColor = ClearSignalColors.OnDark,
-            selectedContainerColor = ClearSignalColors.Amber,
+            selectedContainerColor = ClearSignalColors.SoftBlue,
             selectedLabelColor = ClearSignalColors.NearBlack,
         ),
         border = BorderStroke(
             width = 1.dp,
-            color = if (selected) ClearSignalColors.Amber else ClearSignalColors.Outline,
+            color = if (selected) ClearSignalColors.SoftBlue else ClearSignalColors.Outline,
         ),
     )
 }

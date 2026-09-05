@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -36,6 +37,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.alcolarm.core.designsystem.component.PauseBanner
 import com.alcolarm.core.designsystem.component.SignalPrimaryButton
 import com.alcolarm.core.designsystem.theme.ClearSignalColors
 import com.alcolarm.core.model.UserProfile
@@ -43,7 +45,7 @@ import com.alcolarm.core.model.friendly
 
 @Composable
 fun HomeRoute(
-    showSimulateAlert: Boolean,
+    onPauseReflect: () -> Unit = {},
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val profile by viewModel.profile.collectAsStateWithLifecycle()
@@ -63,7 +65,6 @@ fun HomeRoute(
             result[Manifest.permission.ACCESS_COARSE_LOCATION] == true
         viewModel.onPermissionResult(granted)
         if (granted && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            // Fine first, then offer background (system requires this order).
             showBackgroundRationale = !hasBackgroundLocationPermission(context)
         }
     }
@@ -75,7 +76,6 @@ fun HomeRoute(
         if (granted) {
             viewModel.onBackgroundLocationGranted()
         } else {
-            // Still may need Settings for "Allow all the time" on many OEMs.
             viewModel.refreshPermissionFromSystem()
         }
     }
@@ -121,7 +121,6 @@ fun HomeRoute(
                     viewModel.onHomeResumed()
                 }
                 Lifecycle.Event.ON_PAUSE -> {
-                    // Background FGS keeps running; foreground-only stops inside manager.
                     viewModel.onHomePaused()
                 }
                 else -> Unit
@@ -130,7 +129,6 @@ fun HomeRoute(
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
-            // Do NOT stop background watch when leaving composition.
             viewModel.onHomePaused()
         }
     }
@@ -138,7 +136,6 @@ fun HomeRoute(
     HomeScreen(
         profile = profile,
         monitoring = monitoring,
-        showSimulateAlert = showSimulateAlert,
         notificationsGranted = notificationsGranted,
         showBackgroundRationale = showBackgroundRationale &&
             hasLocationPermission() &&
@@ -153,8 +150,6 @@ fun HomeRoute(
         },
         onRequestBackgroundLocation = {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                // Android 11+ often ignores the runtime dialog for background —
-                // open app settings where the user can pick "Allow all the time".
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                     val intent = Intent(
                         Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
@@ -168,13 +163,12 @@ fun HomeRoute(
                 }
             }
         },
-        onDismissBackgroundRationale = { showBackgroundRationale = false },
         onRequestNotificationPermission = {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
             }
         },
-        onSimulateAlert = { viewModel.simulateAlert() },
+        onPauseReflect = onPauseReflect,
     )
 }
 
@@ -198,121 +192,120 @@ private fun hasBackgroundLocationPermission(context: android.content.Context): B
 fun HomeScreen(
     profile: UserProfile,
     monitoring: HomeMonitoringUi,
-    showSimulateAlert: Boolean,
     notificationsGranted: Boolean,
     showBackgroundRationale: Boolean,
     onRequestLocationPermission: () -> Unit,
     onRequestBackgroundLocation: () -> Unit,
-    onDismissBackgroundRationale: () -> Unit,
     onRequestNotificationPermission: () -> Unit,
-    onSimulateAlert: () -> Unit,
+    onPauseReflect: () -> Unit,
 ) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(24.dp),
+            .background(ClearSignalColors.NearBlack),
     ) {
-        Text(
-            text = "You’re set up",
-            style = MaterialTheme.typography.headlineLarge,
-            color = ClearSignalColors.OnDark,
-        )
-        Spacer(Modifier.height(8.dp))
-        Text(
-            text = "Watching nearby risk places via open map data. We don’t keep a location history.",
-            style = MaterialTheme.typography.bodyLarge,
-            color = ClearSignalColors.OnDarkMuted,
-        )
-        Spacer(Modifier.height(20.dp))
-
-        MonitoringCard(monitoring = monitoring)
-
-        if (!monitoring.permissionGranted) {
-            Spacer(Modifier.height(16.dp))
-            Text(
-                text = "AlcoLarm uses your location only to warn you near places you marked as risky — we don’t keep a location history.",
-                style = MaterialTheme.typography.bodyMedium,
-                color = ClearSignalColors.OnDarkMuted,
-            )
-            Spacer(Modifier.height(12.dp))
-            SignalPrimaryButton(
-                text = "Allow location",
-                onClick = onRequestLocationPermission,
+        if (monitoring.uiState == MonitoringUiState.NEAR_RISK) {
+            PauseBanner(
+                title = "PAUSE",
+                subtitle = "Nearby risk — tap to breathe & reflect",
+                onClick = onPauseReflect,
+                modifier = Modifier.statusBarsPadding(),
             )
         }
 
-        if (showBackgroundRationale || monitoring.needsBackgroundLocation) {
-            Spacer(Modifier.height(16.dp))
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(24.dp),
+        ) {
             Text(
-                text = "To keep alerts working when the app is closed, allow location “all the time” in system settings. " +
-                    "AlcoLarm shows a simple “Location on” notice while watching — nothing about alcohol or recovery.",
-                style = MaterialTheme.typography.bodyMedium,
+                text = "You’re set up",
+                style = MaterialTheme.typography.headlineLarge,
+                color = ClearSignalColors.OnDark,
+            )
+            Spacer(Modifier.height(8.dp))
+            Text(
+                text = "Watching nearby risk places via open map data. We don’t keep a location history.",
+                style = MaterialTheme.typography.bodyLarge,
                 color = ClearSignalColors.OnDarkMuted,
             )
-            Spacer(Modifier.height(12.dp))
-            SignalPrimaryButton(
-                text = "Allow background location",
-                onClick = onRequestBackgroundLocation,
-            )
-        }
+            Spacer(Modifier.height(20.dp))
 
-        if (!notificationsGranted && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            MonitoringCard(monitoring = monitoring)
+
+            if (!monitoring.permissionGranted) {
+                Spacer(Modifier.height(16.dp))
+                Text(
+                    text = "AlcoLarm uses your location only to warn you near places you marked as risky — we don’t keep a location history.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = ClearSignalColors.OnDarkMuted,
+                )
+                Spacer(Modifier.height(12.dp))
+                SignalPrimaryButton(
+                    text = "Allow location",
+                    onClick = onRequestLocationPermission,
+                )
+            }
+
+            if (showBackgroundRationale || monitoring.needsBackgroundLocation) {
+                Spacer(Modifier.height(16.dp))
+                Text(
+                    text = "To keep alerts working when the app is closed, allow location “all the time” in system settings. " +
+                        "AlcoLarm shows a simple “Location on” notice while watching — nothing about alcohol or recovery.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = ClearSignalColors.OnDarkMuted,
+                )
+                Spacer(Modifier.height(12.dp))
+                SignalPrimaryButton(
+                    text = "Allow background location",
+                    onClick = onRequestBackgroundLocation,
+                )
+            }
+
+            if (!notificationsGranted && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                Spacer(Modifier.height(16.dp))
+                Text(
+                    text = "Allow notifications so a discreet call-style alert can reach you when needed.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = ClearSignalColors.OnDarkMuted,
+                )
+                Spacer(Modifier.height(12.dp))
+                SignalPrimaryButton(
+                    text = "Allow notifications",
+                    onClick = onRequestNotificationPermission,
+                )
+            }
+
+            Spacer(Modifier.height(28.dp))
+
+            SummaryBlock(
+                title = "Your reasons",
+                body = if (profile.quitReasons.isEmpty()) {
+                    "None selected yet"
+                } else {
+                    profile.quitReasons.joinToString(", ") { it.friendly() }
+                },
+            )
             Spacer(Modifier.height(16.dp))
-            Text(
-                text = "Allow notifications so a discreet call-style alert can reach you when needed.",
-                style = MaterialTheme.typography.bodyMedium,
-                color = ClearSignalColors.OnDarkMuted,
-            )
-            Spacer(Modifier.height(12.dp))
-            SignalPrimaryButton(
-                text = "Allow notifications",
-                onClick = onRequestNotificationPermission,
-            )
-        }
-
-        Spacer(Modifier.height(28.dp))
-
-        SummaryBlock(
-            title = "Your reasons",
-            body = if (profile.quitReasons.isEmpty()) {
-                "None selected yet"
-            } else {
-                profile.quitReasons.joinToString(", ") { it.friendly() }
-            },
-        )
-        Spacer(Modifier.height(16.dp))
-        SummaryBlock(
-            title = "Risk places",
-            body = if (profile.riskPlaces.isEmpty()) {
-                "None selected yet"
-            } else {
-                profile.riskPlaces.joinToString(", ") { it.friendly() }
-            },
-        )
-        Spacer(Modifier.height(16.dp))
-        SummaryBlock(
-            title = "Emergency contact",
-            body = listOf(profile.emergencyContact.name, profile.emergencyContact.phoneNumber)
-                .filter { it.isNotBlank() }
-                .joinToString(" · ")
-                .ifBlank { "Not set" },
-        )
-
-        if (showSimulateAlert) {
-            Spacer(Modifier.height(40.dp))
-            Text(
-                text = "Debug: Simulate still works even without location.",
-                style = MaterialTheme.typography.bodyMedium,
-                color = ClearSignalColors.OnDarkMuted,
+            SummaryBlock(
+                title = "Risk places",
+                body = if (profile.riskPlaces.isEmpty()) {
+                    "None selected yet"
+                } else {
+                    profile.riskPlaces.joinToString(", ") { it.friendly() }
+                },
             )
             Spacer(Modifier.height(16.dp))
-            SignalPrimaryButton(
-                text = "Simulate risk alert",
-                onClick = onSimulateAlert,
+            SummaryBlock(
+                title = "Emergency contact",
+                body = listOf(profile.emergencyContact.name, profile.emergencyContact.phoneNumber)
+                    .filter { it.isNotBlank() }
+                    .joinToString(" · ")
+                    .ifBlank { "Not set" },
             )
+            Spacer(Modifier.height(24.dp))
         }
-        Spacer(Modifier.height(24.dp))
     }
 }
 
@@ -334,7 +327,7 @@ private fun MonitoringCard(monitoring: HomeMonitoringUi) {
         Text(
             text = "Live risk watch",
             style = MaterialTheme.typography.titleMedium,
-            color = ClearSignalColors.Amber,
+            color = ClearSignalColors.SoftBlue,
         )
         Spacer(Modifier.height(6.dp))
         Text(
@@ -374,7 +367,7 @@ private fun SummaryBlock(title: String, body: String) {
     Text(
         text = title,
         style = MaterialTheme.typography.titleLarge,
-        color = ClearSignalColors.Amber,
+        color = ClearSignalColors.SoftBlue,
     )
     Spacer(Modifier.height(4.dp))
     Text(

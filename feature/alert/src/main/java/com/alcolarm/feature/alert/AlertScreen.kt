@@ -31,11 +31,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.alcolarm.core.designsystem.component.AlarmStrip
 import com.alcolarm.core.designsystem.component.DialButton
+import com.alcolarm.core.designsystem.component.PauseBanner
 import com.alcolarm.core.designsystem.theme.ClearSignalColors
 import com.alcolarm.core.model.UserProfile
 import com.alcolarm.core.model.friendly
@@ -43,12 +46,15 @@ import java.io.File
 
 @Composable
 fun AlertRoute(
+    onPauseReflect: () -> Unit,
+    onDialReturn: () -> Unit,
     onDismiss: () -> Unit,
     viewModel: AlertViewModel = hiltViewModel(),
 ) {
     val profile by viewModel.profile.collectAsStateWithLifecycle()
     val familyPhotos by viewModel.familyPhotoFiles.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
 
     DisposableEffect(Unit) {
         viewModel.startCallStyleAlert()
@@ -57,13 +63,31 @@ fun AlertRoute(
         }
     }
 
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                if (viewModel.consumeDialReturn()) {
+                    viewModel.stopCallStyleAlert()
+                    onDialReturn()
+                }
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+
     AlertScreen(
         profile = profile,
         familyPhotoFiles = familyPhotos,
+        onPause = {
+            viewModel.stopCallStyleAlert()
+            onPauseReflect()
+        },
         onDial = {
             viewModel.stopCallStyleAlert()
             val phone = profile.emergencyContact.phoneNumber
             if (phone.isNotBlank()) {
+                viewModel.markDialStarted()
                 context.startActivity(
                     Intent(Intent.ACTION_DIAL).apply {
                         data = Uri.parse("tel:$phone")
@@ -82,6 +106,7 @@ fun AlertRoute(
 fun AlertScreen(
     profile: UserProfile,
     familyPhotoFiles: List<File>,
+    onPause: () -> Unit,
     onDial: () -> Unit,
     onDismiss: () -> Unit,
 ) {
@@ -99,7 +124,6 @@ fun AlertScreen(
             .fillMaxSize()
             .background(ClearSignalColors.NearBlack),
     ) {
-        // Subtle call metaphor (private in-app; public notification stays anonymous).
         Text(
             text = callLabel,
             style = MaterialTheme.typography.labelLarge,
@@ -111,9 +135,10 @@ fun AlertScreen(
                 .padding(top = 8.dp, bottom = 4.dp),
         )
 
-        AlarmStrip(
-            message = "Pause. You’ve got this.",
-            modifier = Modifier.padding(vertical = 0.dp),
+        PauseBanner(
+            title = "PAUSE",
+            subtitle = "Tap to silence & reflect — you’ve got this",
+            onClick = onPause,
         )
 
         Box(
@@ -121,7 +146,6 @@ fun AlertScreen(
                 .weight(1f)
                 .fillMaxWidth(),
         ) {
-            // Dominant visual: full-bleed photos or strong dark reasons block
             if (familyPhotoFiles.isNotEmpty()) {
                 val pagerState = rememberPagerState(pageCount = { familyPhotoFiles.size })
                 HorizontalPager(
@@ -133,7 +157,7 @@ fun AlertScreen(
                             .data(familyPhotoFiles[page])
                             .crossfade(true)
                             .build(),
-                        contentDescription = "Family photo",
+                        contentDescription = "Photo of loved ones",
                         contentScale = ContentScale.Crop,
                         modifier = Modifier.fillMaxSize(),
                     )
@@ -142,7 +166,6 @@ fun AlertScreen(
                 NoPhotoHero(profile = profile)
             }
 
-            // Bottom scrim: reasons overlay + dismiss + round dial
             Column(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
@@ -222,12 +245,6 @@ private fun NoPhotoHero(profile: UserProfile) {
         if (profile.healthNotes.isNotBlank()) {
             Spacer(Modifier.height(28.dp))
             Text(
-                text = "Health",
-                style = MaterialTheme.typography.titleMedium,
-                color = ClearSignalColors.Amber,
-            )
-            Spacer(Modifier.height(8.dp))
-            Text(
                 text = profile.healthNotes,
                 style = MaterialTheme.typography.bodyLarge,
                 color = ClearSignalColors.OnDark,
@@ -237,19 +254,12 @@ private fun NoPhotoHero(profile: UserProfile) {
         if (profile.familyNotes.isNotBlank()) {
             Spacer(Modifier.height(28.dp))
             Text(
-                text = "Family",
-                style = MaterialTheme.typography.titleMedium,
-                color = ClearSignalColors.Amber,
-            )
-            Spacer(Modifier.height(8.dp))
-            Text(
                 text = profile.familyNotes,
                 style = MaterialTheme.typography.bodyLarge,
                 color = ClearSignalColors.OnDark,
                 textAlign = TextAlign.Center,
             )
         }
-        // Leave room so content isn't hidden behind the bottom dial overlay
         Spacer(Modifier.height(220.dp))
     }
 }

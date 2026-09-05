@@ -14,8 +14,8 @@ android {
         applicationId = "com.alcolarm.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 7
-        versionName = "0.4.0-mvp"
+        versionCode = 8
+        versionName = "0.5.0-mvp"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -59,6 +59,7 @@ dependencies {
     implementation(project(":feature:emergency"))
     implementation(project(":feature:location"))
     implementation(project(":feature:alert"))
+    implementation(project(":feature:reflection"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
