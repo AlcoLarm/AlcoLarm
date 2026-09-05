@@ -14,6 +14,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.alcolarm.app.ui.SettingsRoute
 import com.alcolarm.app.ui.SplashScreen
 import com.alcolarm.feature.alert.AlertRoute
 import com.alcolarm.feature.emergency.EmergencyRoute
@@ -156,6 +157,43 @@ fun AlcoLarmNavHost(
                         Routes.reflection(mode = "optional", affirmation = false),
                     )
                 },
+                onOpenSettings = {
+                    navController.navigate(Routes.Settings) {
+                        launchSingleTop = true
+                    }
+                },
+            )
+        }
+        composable(Routes.Settings) {
+            SettingsRoute(
+                onBack = { navController.popBackStack() },
+                onEditReasons = {
+                    navController.navigate(Routes.EditReasons)
+                },
+                onEditRiskPlaces = {
+                    navController.navigate(Routes.EditRiskPlaces)
+                },
+                onEditEmergency = {
+                    navController.navigate(Routes.EditEmergency)
+                },
+            )
+        }
+        composable(Routes.EditReasons) {
+            OnboardingRoute(
+                editMode = true,
+                onContinue = { navController.popBackStack() },
+            )
+        }
+        composable(Routes.EditRiskPlaces) {
+            RiskPlacesRoute(
+                editMode = true,
+                onContinue = { navController.popBackStack() },
+            )
+        }
+        composable(Routes.EditEmergency) {
+            EmergencyRoute(
+                editMode = true,
+                onContinue = { navController.popBackStack() },
             )
         }
         composable(Routes.Alert) {

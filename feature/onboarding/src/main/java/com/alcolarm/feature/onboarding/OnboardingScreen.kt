@@ -36,6 +36,7 @@ private val reasonLabels = QuitReasonId.entries.map { it to it.displayLabel }
 @Composable
 fun OnboardingRoute(
     onContinue: () -> Unit,
+    editMode: Boolean = false,
     viewModel: OnboardingViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -48,6 +49,7 @@ fun OnboardingRoute(
 
     OnboardingScreen(
         state = state,
+        editMode = editMode,
         onToggleReason = viewModel::toggleReason,
         onHealthNotes = viewModel::updateHealthNotes,
         onFamilyNotes = viewModel::updateFamilyNotes,
@@ -67,6 +69,7 @@ fun OnboardingScreen(
     onPickPhoto: () -> Unit,
     onRemovePhoto: (String) -> Unit,
     onContinue: () -> Unit,
+    editMode: Boolean = false,
 ) {
     Column(
         modifier = Modifier
@@ -164,7 +167,7 @@ fun OnboardingScreen(
 
         Spacer(Modifier.height(32.dp))
         SignalPrimaryButton(
-            text = "Continue",
+            text = if (editMode) "Save" else "Continue",
             onClick = onContinue,
             enabled = state.selectedReasons.isNotEmpty(),
         )
