@@ -1,8 +1,12 @@
 package com.alcolarm.feature.alert
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,10 +26,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,6 +38,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -60,8 +64,37 @@ fun AlertRoute(
     val familyPhotos by viewModel.familyPhotoFiles.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
-    // Survives process death within the same alert navigation entry.
-    var autoDialLaunched by rememberSaveable { mutableStateOf(false) }
+
+    // Phone queued while waiting for CALL_PHONE runtime permission result.
+    var pendingCallPhone by remember { mutableStateOf<String?>(null) }
+
+    val callPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission(),
+    ) { granted ->
+        val phone = pendingCallPhone
+        pendingCallPhone = null
+        if (phone.isNullOrBlank()) return@rememberLauncherForActivityResult
+        if (granted) {
+            launchEmergencyCall(
+                context = context,
+                phone = phone,
+                stopRingtone = { viewModel.stopCallStyleAlert() },
+                markDialStarted = { viewModel.markDialStarted() },
+            )
+        } else {
+            Toast.makeText(
+                context,
+                "Phone permission denied — opening dialer instead",
+                Toast.LENGTH_SHORT,
+            ).show()
+            launchEmergencyDialFallback(
+                context = context,
+                phone = phone,
+                stopRingtone = { viewModel.stopCallStyleAlert() },
+                markDialStarted = { viewModel.markDialStarted() },
+            )
+        }
+    }
 
     DisposableEffect(Unit) {
         viewModel.startCallStyleAlert()
@@ -83,34 +116,6 @@ fun AlertRoute(
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
-    // Auto-dial once per alert session as soon as DataStore profile is ready.
-    // Manual Dial button remains as a retry. Returning from the dialer does not re-fire.
-    LaunchedEffect(Unit) {
-        if (autoDialLaunched) return@LaunchedEffect
-        when (val decision = viewModel.decideAutoDial()) {
-            is AutoDialDecision.Dial -> {
-                autoDialLaunched = true
-                launchEmergencyDial(
-                    context = context,
-                    phone = decision.phone,
-                    stopRingtone = { viewModel.stopCallStyleAlert() },
-                    markDialStarted = { viewModel.markDialStarted() },
-                )
-            }
-            AutoDialDecision.MissingContact -> {
-                autoDialLaunched = true
-                Toast.makeText(
-                    context,
-                    "Add emergency contact in Settings",
-                    Toast.LENGTH_LONG,
-                ).show()
-            }
-            AutoDialDecision.AlreadyHandled -> {
-                autoDialLaunched = true
-            }
-        }
-    }
-
     AlertScreen(
         profile = profile,
         familyPhotoFiles = familyPhotos,
@@ -120,19 +125,28 @@ fun AlertRoute(
         },
         onDial = {
             val phone = profile.emergencyContact.phoneNumber.trim()
-            if (phone.isNotBlank()) {
-                launchEmergencyDial(
-                    context = context,
-                    phone = phone,
-                    stopRingtone = { viewModel.stopCallStyleAlert() },
-                    markDialStarted = { viewModel.markDialStarted() },
-                )
-            } else {
+            if (phone.isBlank()) {
                 Toast.makeText(
                     context,
                     "Add emergency contact in Settings",
                     Toast.LENGTH_LONG,
                 ).show()
+            } else {
+                val hasCallPermission = ContextCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.CALL_PHONE,
+                ) == PackageManager.PERMISSION_GRANTED
+                if (hasCallPermission) {
+                    launchEmergencyCall(
+                        context = context,
+                        phone = phone,
+                        stopRingtone = { viewModel.stopCallStyleAlert() },
+                        markDialStarted = { viewModel.markDialStarted() },
+                    )
+                } else {
+                    pendingCallPhone = phone
+                    callPermissionLauncher.launch(Manifest.permission.CALL_PHONE)
+                }
             }
         },
         onDismiss = {
@@ -143,10 +157,39 @@ fun AlertRoute(
 }
 
 /**
- * Opens the system dialer with [phone] pre-filled (ACTION_DIAL — no CALL_PHONE permission).
+ * Places a direct call with [Intent.ACTION_CALL] (`tel:` URI). Requires CALL_PHONE.
  * Stops call-style ringtone/vibrate so they do not fight the Phone app.
  */
-private fun launchEmergencyDial(
+private fun launchEmergencyCall(
+    context: android.content.Context,
+    phone: String,
+    stopRingtone: () -> Unit,
+    markDialStarted: () -> Unit,
+) {
+    stopRingtone()
+    markDialStarted()
+    runCatching {
+        context.startActivity(
+            Intent(Intent.ACTION_CALL).apply {
+                data = Uri.parse("tel:$phone")
+            },
+        )
+    }.onFailure {
+        // Rare: no dialer / security exception — open dialer as last resort.
+        runCatching {
+            context.startActivity(
+                Intent(Intent.ACTION_DIAL).apply {
+                    data = Uri.parse("tel:$phone")
+                },
+            )
+        }
+    }
+}
+
+/**
+ * Fallback when CALL_PHONE was denied: open the dialer once (ACTION_DIAL).
+ */
+private fun launchEmergencyDialFallback(
     context: android.content.Context,
     phone: String,
     stopRingtone: () -> Unit,
