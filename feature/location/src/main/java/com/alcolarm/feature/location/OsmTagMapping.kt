@@ -13,6 +13,16 @@ object OsmTagMapping {
         val values: List<String>,
     )
 
+    /** Per-risk Overpass search radius (supermarket/convenience larger). */
+    fun searchRadiusMeters(risk: RiskPlaceId): Int = when (risk) {
+        RiskPlaceId.SUPERMARKET -> 180
+        RiskPlaceId.BAR,
+        RiskPlaceId.LIQUOR_STORE,
+        RiskPlaceId.PARTY -> 120
+        RiskPlaceId.HOME_ALONE,
+        RiskPlaceId.OTHER -> 120
+    }
+
     fun filtersFor(risk: RiskPlaceId): List<OsmFilter> = when (risk) {
         RiskPlaceId.BAR -> listOf(
             OsmFilter("amenity", listOf("bar", "pub", "biergarten")),

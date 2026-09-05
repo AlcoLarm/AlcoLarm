@@ -347,12 +347,12 @@ class RiskWatchEngine @Inject constructor(
     companion object {
         private const val TAG = "AlcoLarm.WatchEngine"
 
-        private const val EVAL_INTERVAL_MS = 5_000L
-        private const val OVERPASS_INTERVAL_MS = 25_000L
+        private const val EVAL_INTERVAL_MS = 3_000L
+        private const val OVERPASS_INTERVAL_MS = 10_000L
         const val STOP_SPEED_MPS = 0.7f
-        const val DISPLACEMENT_STILL_METERS = 18.0
-        const val STILL_WINDOW_MS = 30_000L
-        const val DWELL_REQUIRED_MS = 15_000L
+        const val DISPLACEMENT_STILL_METERS = 14.0
+        const val STILL_WINDOW_MS = 8_000L
+        const val DWELL_REQUIRED_MS = 5_000L
         private const val ALERT_COOLDOWN_MS = 5 * 60_000L
         private const val SAMPLE_RING_CAPACITY = 16
 
