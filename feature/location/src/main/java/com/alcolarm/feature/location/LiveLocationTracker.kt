@@ -22,11 +22,11 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 enum class LocationUpdateMode {
-    /** High accuracy while Home is resumed / near a candidate. */
+    /** High accuracy while Home is resumed. */
     FOREGROUND,
-    /** Balanced power while background FGS runs away from candidates. */
+    /** High accuracy while background FGS runs away from candidates. */
     BACKGROUND,
-    /** Slightly more frequent balanced updates while still near a candidate in background. */
+    /** Slightly faster high-accuracy updates while still near a candidate. */
     BACKGROUND_NEAR,
 }
 
@@ -127,24 +127,16 @@ class LiveLocationTracker @Inject constructor(
     }
 
     private fun buildRequest(mode: LocationUpdateMode): LocationRequest {
-        val (priority, interval, minInterval) = when (mode) {
-            LocationUpdateMode.FOREGROUND -> Triple(
-                Priority.PRIORITY_HIGH_ACCURACY,
-                FOREGROUND_INTERVAL_MS,
-                FOREGROUND_MIN_INTERVAL_MS,
-            )
-            LocationUpdateMode.BACKGROUND -> Triple(
-                Priority.PRIORITY_BALANCED_POWER_ACCURACY,
-                BACKGROUND_INTERVAL_MS,
-                BACKGROUND_MIN_INTERVAL_MS,
-            )
-            LocationUpdateMode.BACKGROUND_NEAR -> Triple(
-                Priority.PRIORITY_BALANCED_POWER_ACCURACY,
-                BACKGROUND_NEAR_INTERVAL_MS,
-                BACKGROUND_NEAR_MIN_INTERVAL_MS,
-            )
+        // Always HIGH_ACCURACY while watching (foreground Home and background FGS).
+        val (interval, minInterval) = when (mode) {
+            LocationUpdateMode.FOREGROUND ->
+                FOREGROUND_INTERVAL_MS to FOREGROUND_MIN_INTERVAL_MS
+            LocationUpdateMode.BACKGROUND ->
+                BACKGROUND_INTERVAL_MS to BACKGROUND_MIN_INTERVAL_MS
+            LocationUpdateMode.BACKGROUND_NEAR ->
+                BACKGROUND_NEAR_INTERVAL_MS to BACKGROUND_NEAR_MIN_INTERVAL_MS
         }
-        return LocationRequest.Builder(priority, interval)
+        return LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, interval)
             .setMinUpdateIntervalMillis(minInterval)
             .setMinUpdateDistanceMeters(MIN_DISTANCE_METERS)
             .setWaitForAccurateLocation(false)
@@ -154,16 +146,16 @@ class LiveLocationTracker @Inject constructor(
     companion object {
         private const val TAG = "AlcoLarm.Location"
 
-        private const val FOREGROUND_INTERVAL_MS = 10_000L
-        private const val FOREGROUND_MIN_INTERVAL_MS = 5_000L
+        private const val FOREGROUND_INTERVAL_MS = 6_000L
+        private const val FOREGROUND_MIN_INTERVAL_MS = 3_000L
 
-        /** Balanced while backgrounded and not near a candidate (~30–45 s). */
-        private const val BACKGROUND_INTERVAL_MS = 40_000L
-        private const val BACKGROUND_MIN_INTERVAL_MS = 20_000L
+        /** Background FGS away from candidates — high accuracy, ~5–8 s. */
+        private const val BACKGROUND_INTERVAL_MS = 8_000L
+        private const val BACKGROUND_MIN_INTERVAL_MS = 5_000L
 
-        /** Near a candidate: frequent enough to accumulate a 15 s dwell. */
-        private const val BACKGROUND_NEAR_INTERVAL_MS = 8_000L
-        private const val BACKGROUND_NEAR_MIN_INTERVAL_MS = 4_000L
+        /** Near a candidate: slightly faster for short dwell. */
+        private const val BACKGROUND_NEAR_INTERVAL_MS = 5_000L
+        private const val BACKGROUND_NEAR_MIN_INTERVAL_MS = 3_000L
 
         /** 0 m — must receive fixes while the user is stopped (pass-by vs stay). */
         private const val MIN_DISTANCE_METERS = 0f

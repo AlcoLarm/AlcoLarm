@@ -41,7 +41,7 @@ class RiskPlaceDetector @Inject constructor(
         latitude: Double,
         longitude: Double,
         selectedRisks: Set<RiskPlaceId>,
-        radiusMeters: Int = SEARCH_RADIUS_METERS,
+        radiusMeters: Int? = null,
     ): RiskDetectResult = withContext(Dispatchers.IO) {
         val detectable = OsmTagMapping.detectable(selectedRisks)
         if (detectable.isEmpty()) {
@@ -50,7 +50,7 @@ class RiskPlaceDetector @Inject constructor(
 
         throttlePolitely()
 
-        val query = buildOverpassQuery(latitude, longitude, radiusMeters, detectable)
+        val query = buildOverpassQuery(latitude, longitude, detectable, radiusMeters)
         val request = Request.Builder()
             .url(OVERPASS_URL)
             .header("User-Agent", USER_AGENT)
@@ -89,18 +89,19 @@ class RiskPlaceDetector @Inject constructor(
     private fun buildOverpassQuery(
         latitude: Double,
         longitude: Double,
-        radiusMeters: Int,
         selected: Set<RiskPlaceId>,
+        radiusOverride: Int? = null,
     ): String {
-        val filters = selected.flatMap { OsmTagMapping.filtersFor(it) }
-            .groupBy { it.key }
-            .mapValues { (_, list) -> list.flatMap { it.values }.distinct() }
-
+        // Per-risk radius so supermarket/convenience can use 180 m while others stay 120 m.
         val clauses = buildString {
-            for ((key, values) in filters) {
-                val regex = values.joinToString("|")
-                append("  node(around:$radiusMeters,$latitude,$longitude)[\"$key\"~\"^($regex)$\"];\n")
-                append("  way(around:$radiusMeters,$latitude,$longitude)[\"$key\"~\"^($regex)$\"];\n")
+            for (risk in selected) {
+                val radius = radiusOverride ?: OsmTagMapping.searchRadiusMeters(risk)
+                val filters = OsmTagMapping.filtersFor(risk)
+                for (filter in filters) {
+                    val regex = filter.values.joinToString("|")
+                    append("  node(around:$radius,$latitude,$longitude)[\"${filter.key}\"~\"^($regex)$\"];\n")
+                    append("  way(around:$radius,$latitude,$longitude)[\"${filter.key}\"~\"^($regex)$\"];\n")
+                }
             }
         }
 
@@ -150,9 +151,11 @@ class RiskPlaceDetector @Inject constructor(
         private const val TAG = "AlcoLarm.Overpass"
         private const val OVERPASS_URL = "https://overpass-api.de/api/interpreter"
         private const val USER_AGENT = "AlcoLarm/0.5 (recovery support app)"
-        /** Nearby search radius (~120 m). Unchanged for stop+dwell alerts. */
+        /** Default / non-supermarket nearby search radius. */
         const val SEARCH_RADIUS_METERS = 120
-        /** Be polite to the public Overpass instance (extra to HomeVM's ~50s cycle). */
-        private const val MIN_REQUEST_GAP_MS = 10_000L
+        /** Supermarket + convenience radius (see OsmTagMapping.searchRadiusMeters). */
+        const val SUPERMARKET_SEARCH_RADIUS_METERS = 180
+        /** Align with OVERPASS_INTERVAL_MS; stay polite to public Overpass (~8–10 s). */
+        private const val MIN_REQUEST_GAP_MS = 8_000L
     }
 }

@@ -4,7 +4,7 @@ Android recovery-support app to help avoid alcohol relapse.
 
 **Stack:** Kotlin · Jetpack Compose · Hilt · multi-module Gradle (Kotlin DSL)  
 **Design:** Quiet Companion (cream/sage) + large soft pause banners + warm amber dial  
-**Version:** `0.5.5-mvp` (versionCode 13)
+**Version:** `0.5.6-mvp` (versionCode 14)
 
 ## MVP flow
 
@@ -23,11 +23,11 @@ Privacy: **live location only** (current sample + short in-memory ring for still
 
 | Piece | Implementation |
 |--------|----------------|
-| Location | Play Services `FusedLocationProviderClient` — high accuracy while Home is open; **balanced** (~30–40 s) in background FGS; bumps to ~8 s while near a candidate so a **15 s** dwell still works |
-| Places | **OpenStreetMap Overpass API** (`overpass-api.de`) **SEARCH_RADIUS ≈ 120 m** — **free, no key** |
+| Location | Play Services `FusedLocationProviderClient` — **always `PRIORITY_HIGH_ACCURACY`** while watching (foreground + background FGS); ~6 s / min 3 s foreground; ~8 s / min 5 s background; ~5 s / min 3 s when near |
+| Places | **OpenStreetMap Overpass API** (`overpass-api.de`) — **supermarket/convenience 180 m**, other risks **120 m** — **free, no key** |
 | Mapping | `BAR→amenity=bar\|pub\|biergarten`, `LIQUOR_STORE→shop=alcohol\|wine`, `SUPERMARKET→shop=supermarket\|convenience`, `PARTY→amenity=nightclub\|bar` (`HOME_ALONE` / `OTHER` skipped) |
-| Still | `STOP_SPEED_MPS = 0.7` when speed is present; else displacement &lt; ~18 m over last ~30 s (in-memory ring only) |
-| Dwell | Still **and** nearby continuously for `DWELL_REQUIRED_MS = 15_000` (~15 s); pass-by / leave radius resets the timer |
+| Still | `STOP_SPEED_MPS = 0.7` when speed is present; else displacement &lt; ~14 m over last ~8 s (in-memory ring only) |
+| Dwell | Still **and** nearby continuously for `DWELL_REQUIRED_MS = 5_000` (~5 s); pass-by / leave radius resets the timer |
 | Alert UX | Photo alert screen stays on screen (no auto-dialer). Round Call button uses **`ACTION_CALL`** after `CALL_PHONE` (else one `ACTION_DIAL` fallback). Default **ringtone** + call-like vibration until pause/call/dismiss; high-priority notification with `fullScreenIntent`; lock-screen title is anonymous (**Incoming call** / emergency contact name) — not alcohol/risk wording |
 | Cooldown | 5 min after dismiss |
 | Background | **`RiskWatchService`** foreground service (`foregroundServiceType=location`) hosts `RiskWatchEngine`. Home **ON_PAUSE does not stop** monitoring when background watch is active. Ongoing notification: **“AlcoLarm is active” / “Location on”** (never alcohol / relapse / risk / recovery) |
@@ -45,7 +45,7 @@ If only while-in-use location is granted, monitoring stays **foreground-only** (
 
 ### OSM rate limits (please be polite)
 
-Public Overpass instances ask for responsible use: identify the app (User-Agent), avoid tight polling. Local still/dwell evaluates about every **5 s**; Overpass runs only while the user is **still**, about every **25 s** (plus a ≥10 s client gap). Do not lower these for production builds.
+Public Overpass instances ask for responsible use: identify the app (User-Agent), avoid tight polling. Local still/dwell evaluates about every **3 s**; Overpass runs only while the user is **still**, about every **10 s** (plus a ≥8 s client gap). High-accuracy GPS + frequent Overpass use more battery — intentional for aggressive MVP detection.
 
 ## Modules
 
@@ -78,7 +78,7 @@ No `MAPS_API_KEY` in `local.properties` is needed for live detection.
 adb install -r /path/to/AlcoLarm-debug.apk
 ```
 
-`applicationId`: `com.alcolarm.app` · `versionName`: `0.5.5-mvp`
+`applicationId`: `com.alcolarm.app` · `versionName`: `0.5.6-mvp`
 
 ## Design notes (v0.5)
 
