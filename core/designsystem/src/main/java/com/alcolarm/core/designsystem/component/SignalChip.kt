@@ -9,6 +9,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.alcolarm.core.designsystem.theme.ClearSignalColors
 
@@ -30,12 +31,12 @@ fun SignalChip(
             )
         },
         modifier = modifier,
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(24.dp),
         colors = FilterChipDefaults.filterChipColors(
-            containerColor = ClearSignalColors.SurfaceElevated,
+            containerColor = ClearSignalColors.Surface,
             labelColor = ClearSignalColors.OnDark,
             selectedContainerColor = ClearSignalColors.SoftBlue,
-            selectedLabelColor = ClearSignalColors.NearBlack,
+            selectedLabelColor = Color.White,
         ),
         border = BorderStroke(
             width = 1.dp,

@@ -3,35 +3,44 @@ package com.alcolarm.core.designsystem.theme
 import androidx.compose.ui.graphics.Color
 
 /**
- * AlcoLarm palette:
- * - Everyday UI — Nordic calm (cool blue-gray surfaces, soft blue primary)
- * - Dial / urgent — Clear Signal amber accent
- * - Pause / alert banner — Neo brutal high contrast
+ * AlcoLarm palette — Quiet Companion (B2):
+ * cream/off-white surfaces, soft sage primary, gentle amber dial accent.
+ * Pause banner stays large & obvious with soft sage (not harsh neo-brutal).
+ *
+ * Token names are historical; values are Quiet Companion.
  */
 object ClearSignalColors {
-    val NearBlack = Color(0xFF0F1419)
-    val Surface = Color(0xFF1A222C)
-    val SurfaceElevated = Color(0xFF24303C)
-    val Outline = Color(0xFF3D4A5C)
+    /** Cream app background. */
+    val NearBlack = Color(0xFFF7F5F0)
+    val Surface = Color(0xFFFFFEFA)
+    val SurfaceElevated = Color(0xFFEEECE4)
+    val Outline = Color(0xFFD2CFC4)
 
-    val OnDark = Color(0xFFE8EEF4)
-    val OnDarkMuted = Color(0xFF9AA8B8)
+    /** Ink on cream. */
+    val OnDark = Color(0xFF2A2F2A)
+    val OnDarkMuted = Color(0xFF6B7368)
 
-    /** Soft blue — everyday primary actions (Continue, Allow, etc.). */
-    val SoftBlue = Color(0xFF6B9BD1)
-    val SoftBlueDim = Color(0xFF557FAD)
-    val SoftBlueContainer = Color(0xFF1E3348)
+    /** Sage — everyday primary CTAs. */
+    val SoftBlue = Color(0xFF828F73)
+    val SoftBlueDim = Color(0xFF6F7C61)
+    val SoftBlueContainer = Color(0xFFE4E8DC)
 
-    /** Amber — dial, call, and urgent accents only. */
-    val Amber = Color(0xFFFFB020)
-    val AmberDim = Color(0xFFE09810)
-    val AmberContainer = Color(0xFF3D2E0A)
+    /** Soft warm amber — dial / call accent. */
+    val Amber = Color(0xFFD4A05A)
+    val AmberDim = Color(0xFFC08E48)
+    val AmberContainer = Color(0xFFF3E6D2)
 
-    /** Neo brutal pause banner. */
-    val NeoBrutalAmber = Color(0xFFFFC107)
-    val NeoBrutalInk = Color(0xFF0A0A0A)
+    /** Soft sage pause banner (big, tappable). */
+    val NeoBrutalAmber = Color(0xFFC9D4BC)
+    val NeoBrutalInk = Color(0xFF2C3A28)
 
-    val TealSupport = Color(0xFF2EC4B6)
-    val Danger = Color(0xFFFF5A5F)
-    val Success = Color(0xFF3DDC97)
+    val TealSupport = Color(0xFF6E9B8A)
+    val Danger = Color(0xFFC75B5E)
+    val Success = Color(0xFF5A9E78)
+
+    /** Explicit Quiet Companion aliases. */
+    val Cream = NearBlack
+    val Sage = SoftBlue
+    val Ink = OnDark
+    val InkMuted = OnDarkMuted
 }

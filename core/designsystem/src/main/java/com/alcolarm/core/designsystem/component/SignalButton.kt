@@ -11,6 +11,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.alcolarm.core.designsystem.theme.ClearSignalColors
 
@@ -27,10 +28,10 @@ fun SignalPrimaryButton(
         modifier = modifier
             .fillMaxWidth()
             .heightIn(min = 56.dp),
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(24.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = ClearSignalColors.SoftBlue,
-            contentColor = ClearSignalColors.NearBlack,
+            contentColor = Color.White,
             disabledContainerColor = ClearSignalColors.Outline,
             disabledContentColor = ClearSignalColors.OnDarkMuted,
         ),
@@ -40,7 +41,7 @@ fun SignalPrimaryButton(
     }
 }
 
-/** Amber CTA for dial / urgent paths. */
+/** Soft amber CTA for dial / warm paths. */
 @Composable
 fun SignalUrgentButton(
     text: String,
@@ -54,10 +55,10 @@ fun SignalUrgentButton(
         modifier = modifier
             .fillMaxWidth()
             .heightIn(min = 56.dp),
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(24.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = ClearSignalColors.Amber,
-            contentColor = ClearSignalColors.NearBlack,
+            contentColor = ClearSignalColors.OnDark,
             disabledContainerColor = ClearSignalColors.Outline,
             disabledContentColor = ClearSignalColors.OnDarkMuted,
         ),
@@ -80,7 +81,7 @@ fun SignalSecondaryButton(
         modifier = modifier
             .fillMaxWidth()
             .heightIn(min = 52.dp),
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(24.dp),
         colors = ButtonDefaults.outlinedButtonColors(
             contentColor = ClearSignalColors.OnDark,
         ),

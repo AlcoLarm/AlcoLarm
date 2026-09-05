@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.AlcoLarm" parent="android:Theme.Material.NoActionBar">
-        <item name="android:statusBarColor">#FF0B0D10</item>
-        <item name="android:navigationBarColor">#FF0B0D10</item>
-        <item name="android:windowBackground">#FF0B0D10</item>
+    <style name="Theme.AlcoLarm" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:statusBarColor">#FFF7F5F0</item>
+        <item name="android:navigationBarColor">#FFF7F5F0</item>
+        <item name="android:windowBackground">#FFF7F5F0</item>
+        <item name="android:windowLightStatusBar">true</item>
     </style>
 </resources>

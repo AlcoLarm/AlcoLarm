@@ -26,11 +26,11 @@ fun SplashScreen() {
             Text(
                 text = "AlcoLarm",
                 style = MaterialTheme.typography.displayLarge,
-                color = ClearSignalColors.Amber,
+                color = ClearSignalColors.SoftBlue,
             )
             Spacer(Modifier.height(12.dp))
             Text(
-                text = "A clear signal when it matters.",
+                text = "A quiet companion when it matters.",
                 style = MaterialTheme.typography.bodyLarge,
                 color = ClearSignalColors.OnDarkMuted,
             )

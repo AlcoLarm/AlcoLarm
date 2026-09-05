@@ -3,8 +3,8 @@
 Android recovery-support app to help avoid alcohol relapse.
 
 **Stack:** Kotlin · Jetpack Compose · Hilt · multi-module Gradle (Kotlin DSL)  
-**Design:** Nordic calm everyday UI + Neo brutal pause banners + amber dial/urgent accents  
-**Version:** `0.5.0-mvp` (versionCode 8)
+**Design:** Quiet Companion (cream/sage) + large soft pause banners + warm amber dial  
+**Version:** `0.5.1-mvp` (versionCode 9)
 
 ## MVP flow
 
@@ -12,8 +12,8 @@ Android recovery-support app to help avoid alcohol relapse.
 2. **Onboarding** — quit-reason chips (health optional text; loved ones optional text + photo picker)
 3. **Risk places** — chips (bar, liquor store, supermarket, …)
 4. **Emergency contact** — name + phone; test dial via `ACTION_DIAL`
-5. **Home** — summary + **live risk watch** (Fused Location + OpenStreetMap Overpass); Neo brutal **PAUSE** banner when near risk
-6. **Alert** — large tappable **PAUSE** banner (silences ring/vibrate → optional reflection), loved-ones photos/notes (no “Family” heading), amber Dial
+5. **Home** — summary + **live risk watch** (Fused Location + OpenStreetMap Overpass); large soft sage **PAUSE** banner when near risk
+6. **Alert** — large tappable **PAUSE** banner (silences ring/vibrate → optional reflection), loved-ones photos/notes (no “Family” heading), warm amber Dial
 7. **Dial return** — soft choice *I reached them* / *They didn’t answer* → praise+Home or affirmation + **mandatory** reflection
 8. **Reflection** (`:feature:reflection`) — 3–5 short cards (why you quit + honest look at giving in); skippable from Pause (“Not now”)
 

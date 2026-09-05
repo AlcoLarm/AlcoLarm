@@ -20,8 +20,7 @@ import androidx.compose.ui.unit.dp
 import com.alcolarm.core.designsystem.theme.ClearSignalColors
 
 /**
- * Circular FAB-style dial control for the alert screen.
- * Amber Clear Signal accent; short label under the round button.
+ * Circular dial control — soft warm amber accent on Quiet Companion.
  */
 @Composable
 fun DialButton(
@@ -39,11 +38,11 @@ fun DialButton(
             shape = CircleShape,
             colors = ButtonDefaults.buttonColors(
                 containerColor = ClearSignalColors.Amber,
-                contentColor = ClearSignalColors.NearBlack,
+                contentColor = ClearSignalColors.OnDark,
             ),
             elevation = ButtonDefaults.buttonElevation(
-                defaultElevation = 10.dp,
-                pressedElevation = 4.dp,
+                defaultElevation = 6.dp,
+                pressedElevation = 2.dp,
             ),
             contentPadding = PaddingValues(0.dp),
         ) {
