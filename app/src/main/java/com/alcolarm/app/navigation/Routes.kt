@@ -7,4 +7,10 @@ object Routes {
     const val Emergency = "emergency"
     const val Home = "home"
     const val Alert = "alert"
+    const val CallOutcome = "call_outcome"
+    const val ReachedPraise = "reached_praise"
+    const val Reflection = "reflection/{mode}/{affirmation}"
+
+    fun reflection(mode: String, affirmation: Boolean): String =
+        "reflection/$mode/${if (affirmation) "1" else "0"}"
 }

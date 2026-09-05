@@ -16,7 +16,7 @@ enum class QuitReasonId {
     val displayLabel: String
         get() = when (this) {
             HEALTH -> "Health"
-            FAMILY -> "Family"
+            FAMILY -> "Loved ones"
             MONEY -> "Money"
             WORK -> "Work"
             SELF_RESPECT -> "Self-respect"
@@ -39,6 +39,6 @@ data class HealthNotes(
 
 data class FamilyNotes(
     val text: String = "",
-    /** Local URI strings for placeholder family photos (MVP stub). */
+    /** Local URI strings for placeholder loved-ones photos (MVP stub). */
     val photoUris: List<String> = emptyList(),
 )

@@ -3,22 +3,23 @@
 Android recovery-support app to help avoid alcohol relapse.
 
 **Stack:** Kotlin · Jetpack Compose · Hilt · multi-module Gradle (Kotlin DSL)  
-**Design:** Clear Signal — dark base, high contrast, amber accent, stress-ready dial  
-**Version:** `0.4.0-mvp` (versionCode 7)
+**Design:** Nordic calm everyday UI + Neo brutal pause banners + amber dial/urgent accents  
+**Version:** `0.5.0-mvp` (versionCode 8)
 
 ## MVP flow
 
 1. **Splash** → waits for DataStore profile, then onboarding or home
-2. **Onboarding** — quit-reason chips (health optional text; family optional text + photo picker)
+2. **Onboarding** — quit-reason chips (health optional text; loved ones optional text + photo picker)
 3. **Risk places** — chips (bar, liquor store, supermarket, …)
 4. **Emergency contact** — name + phone; test dial via `ACTION_DIAL`
-5. **Home** — summary + **live risk watch** (Fused Location + OpenStreetMap Overpass)
-6. **Alert** — AlarmStrip, reasons, family photo preview, large Dial button
-7. **Simulate risk alert** — debug builds only (works without location; immediate)
+5. **Home** — summary + **live risk watch** (Fused Location + OpenStreetMap Overpass); Neo brutal **PAUSE** banner when near risk
+6. **Alert** — large tappable **PAUSE** banner (silences ring/vibrate → optional reflection), loved-ones photos/notes (no “Family” heading), amber Dial
+7. **Dial return** — soft choice *I reached them* / *They didn’t answer* → praise+Home or affirmation + **mandatory** reflection
+8. **Reflection** (`:feature:reflection`) — 3–5 short cards (why you quit + honest look at giving in); skippable from Pause (“Not now”)
 
-Privacy: **live location only** (current sample + short in-memory ring for still/dwell — never written to DataStore). Backup/cloud extraction disabled. Family photos copied into app-internal storage.
+Privacy: **live location only** (current sample + short in-memory ring for still/dwell — never written to DataStore). Backup/cloud extraction disabled. Loved-ones photos copied into app-internal storage.
 
-## Live risk detection (v0.4.0 — background watch)
+## Live risk detection (v0.4.0+ background watch)
 
 | Piece | Implementation |
 |--------|----------------|
@@ -31,7 +32,7 @@ Privacy: **live location only** (current sample + short in-memory ring for still
 | Cooldown | 5 min after dismiss |
 | Background | **`RiskWatchService`** foreground service (`foregroundServiceType=location`) hosts `RiskWatchEngine`. Home **ON_PAUSE does not stop** monitoring when background watch is active. Ongoing notification: **“AlcoLarm is active” / “Location on”** (never alcohol / relapse / risk / recovery) |
 
-**No Google Places / Maps API key is required.** AlcoLarm stays free by querying OSM Overpass with User-Agent `AlcoLarm/0.4 (recovery support app)`.
+**No Google Places / Maps API key is required.** AlcoLarm stays free by querying OSM Overpass with User-Agent `AlcoLarm/0.5 (recovery support app)`.
 
 ### Permissions the user must grant
 
@@ -53,12 +54,13 @@ Public Overpass instances ask for responsible use: identify the app (User-Agent)
 | `:app` | Application, Hilt, NavHost |
 | `:core:model` | Domain models + display labels |
 | `:core:data` | DataStore prefs (**no** location history) |
-| `:core:designsystem` | Clear Signal theme + chips / buttons / AlarmStrip / Dial |
-| `:feature:onboarding` | Quit reasons |
+| `:core:designsystem` | Nordic calm theme + PauseBanner / chips / buttons / Dial |
+| `:feature:onboarding` | Quit reasons (“Loved ones” chip) |
 | `:feature:riskplaces` | Risk place chips |
 | `:feature:emergency` | Emergency contact + dial |
-| `:feature:location` | Home, Fused location, OSM Overpass, `RiskWatchService`, Simulate |
-| `:feature:alert` | Alert screen + call-style controller |
+| `:feature:location` | Home, Fused location, OSM Overpass, `RiskWatchService` |
+| `:feature:alert` | Alert screen + call-style controller + dial-return tracker |
+| `:feature:reflection` | Pause / no-answer reflection cards + call outcome |
 
 ## Build / run
 
@@ -76,16 +78,11 @@ No `MAPS_API_KEY` in `local.properties` is needed for live detection.
 adb install -r /path/to/AlcoLarm-debug.apk
 ```
 
-`applicationId`: `com.alcolarm.app` · `versionName`: `0.4.0-mvp`
+`applicationId`: `com.alcolarm.app` · `versionName`: `0.5.0-mvp`
 
-### How to test live detection
+## Design notes (v0.5)
 
-1. Install a fresh debug build (no API key required).
-2. Complete onboarding; select at least one detectable risk (e.g. **Bar**).
-3. On Home, tap **Allow location** and grant fine/coarse location.
-4. Tap **Allow background location** and set **Allow all the time** in system settings (Android 10+).
-5. Status should show **Monitoring: on (background)** and a persistent **“AlcoLarm is active” / “Location on”** notification. Leave Home / press Home — watch must **keep running**.
-6. **Stand still** near a mapped bar / liquor store / supermarket (~120 m) for about **15 seconds**. Status becomes **Near — confirming you’ve stopped…** while dwell accumulates. Walking or driving past should **not** alert.
-7. Alert opens with **ringtone + call-style vibration** (and an anonymous “Incoming call” notification). In-app Alert keeps supportive recovery content. Dial / I’m OK / leave Alert stops the ring. Dismiss → 5 min cooldown.
-8. Grant **Notifications** (Android 13+) so the ongoing location notice and call-style notification / full-screen intent can appear.
-9. **Simulate risk alert** (debug) still works from Home without location.
+- **Everyday:** cool blue-gray surfaces, soft blue primary actions, calm private feel.
+- **Pause / alert urgency:** Neo brutal amber banner — large top tappable area (not a tiny control).
+- **Dial / call:** Clear Signal amber accent retained for dial and “I reached them”.
+- **Launcher:** Logo 8 path-to-light adaptive icon.

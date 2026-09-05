@@ -29,6 +29,33 @@ fun SignalPrimaryButton(
             .heightIn(min = 56.dp),
         shape = RoundedCornerShape(16.dp),
         colors = ButtonDefaults.buttonColors(
+            containerColor = ClearSignalColors.SoftBlue,
+            contentColor = ClearSignalColors.NearBlack,
+            disabledContainerColor = ClearSignalColors.Outline,
+            disabledContentColor = ClearSignalColors.OnDarkMuted,
+        ),
+        contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp),
+    ) {
+        Text(text = text, style = MaterialTheme.typography.titleLarge)
+    }
+}
+
+/** Amber CTA for dial / urgent paths. */
+@Composable
+fun SignalUrgentButton(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+) {
+    Button(
+        onClick = onClick,
+        enabled = enabled,
+        modifier = modifier
+            .fillMaxWidth()
+            .heightIn(min = 56.dp),
+        shape = RoundedCornerShape(16.dp),
+        colors = ButtonDefaults.buttonColors(
             containerColor = ClearSignalColors.Amber,
             contentColor = ClearSignalColors.NearBlack,
             disabledContainerColor = ClearSignalColors.Outline,

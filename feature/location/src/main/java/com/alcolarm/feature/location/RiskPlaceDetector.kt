@@ -149,7 +149,7 @@ class RiskPlaceDetector @Inject constructor(
     companion object {
         private const val TAG = "AlcoLarm.Overpass"
         private const val OVERPASS_URL = "https://overpass-api.de/api/interpreter"
-        private const val USER_AGENT = "AlcoLarm/0.4 (recovery support app)"
+        private const val USER_AGENT = "AlcoLarm/0.5 (recovery support app)"
         /** Nearby search radius (~120 m). Unchanged for stop+dwell alerts. */
         const val SEARCH_RADIUS_METERS = 120
         /** Be polite to the public Overpass instance (extra to HomeVM's ~50s cycle). */

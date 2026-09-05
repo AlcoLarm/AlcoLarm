@@ -18,6 +18,7 @@ class AlertViewModel @Inject constructor(
     repository: UserPreferencesRepository,
     familyPhotoStore: FamilyPhotoStore,
     private val callStyleAlert: CallStyleAlertController,
+    private val dialReturnTracker: DialReturnTracker,
 ) : ViewModel() {
     val profile: StateFlow<UserProfile> = repository.profile.stateIn(
         scope = viewModelScope,
@@ -25,7 +26,7 @@ class AlertViewModel @Inject constructor(
         initialValue = UserProfile(),
     )
 
-    /** Resolved app-scoped family photo files for Coil / Image loading. */
+    /** Resolved app-scoped loved-ones photo files for Coil / Image loading. */
     val familyPhotoFiles: StateFlow<List<File>> = repository.profile
         .map { profile ->
             profile.familyPhotoUris.mapNotNull { familyPhotoStore.resolveFile(it) }
@@ -36,7 +37,6 @@ class AlertViewModel @Inject constructor(
             initialValue = emptyList(),
         )
 
-    /** Start anonymous call-style ring / vibrate / full-screen notification. */
     fun startCallStyleAlert() {
         val contact = profile.value.emergencyContact
         val name = contact.name.trim().takeIf { it.isNotEmpty() }
@@ -47,6 +47,12 @@ class AlertViewModel @Inject constructor(
     fun stopCallStyleAlert() {
         callStyleAlert.stop()
     }
+
+    fun markDialStarted() {
+        dialReturnTracker.markDialStarted()
+    }
+
+    fun consumeDialReturn(): Boolean = dialReturnTracker.consumePendingWithin()
 
     override fun onCleared() {
         callStyleAlert.stop()

@@ -121,7 +121,7 @@ fun OnboardingScreen(
         if (QuitReasonId.FAMILY in state.selectedReasons) {
             Spacer(Modifier.height(24.dp))
             Text(
-                text = "Family notes (optional)",
+                text = "Loved ones notes (optional)",
                 style = MaterialTheme.typography.titleLarge,
                 color = ClearSignalColors.OnDark,
             )
@@ -174,11 +174,11 @@ fun OnboardingScreen(
 
 @Composable
 private fun fieldColors() = OutlinedTextFieldDefaults.colors(
-    focusedBorderColor = ClearSignalColors.Amber,
+    focusedBorderColor = ClearSignalColors.SoftBlue,
     unfocusedBorderColor = ClearSignalColors.Outline,
     focusedTextColor = ClearSignalColors.OnDark,
     unfocusedTextColor = ClearSignalColors.OnDark,
-    cursorColor = ClearSignalColors.Amber,
+    cursorColor = ClearSignalColors.SoftBlue,
     focusedPlaceholderColor = ClearSignalColors.OnDarkMuted,
     unfocusedPlaceholderColor = ClearSignalColors.OnDarkMuted,
 )

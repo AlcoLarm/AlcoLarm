@@ -3,21 +3,29 @@ package com.alcolarm.app.navigation
 import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.alcolarm.app.BuildConfig
+import androidx.navigation.navArgument
 import com.alcolarm.app.ui.SplashScreen
 import com.alcolarm.feature.alert.AlertRoute
 import com.alcolarm.feature.emergency.EmergencyRoute
 import com.alcolarm.feature.location.HomeRoute
 import com.alcolarm.feature.location.RiskAlertBus
 import com.alcolarm.feature.onboarding.OnboardingRoute
+import com.alcolarm.feature.reflection.CallOutcomeRoute
+import com.alcolarm.feature.reflection.ReachedPraiseRoute
+import com.alcolarm.feature.reflection.ReflectionMode
+import com.alcolarm.feature.reflection.ReflectionRoute
 import com.alcolarm.feature.riskplaces.RiskPlacesRoute
+import com.alcolarm.core.data.UserPreferencesRepository
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
@@ -30,6 +38,12 @@ import kotlinx.coroutines.delay
 @InstallIn(SingletonComponent::class)
 interface RiskAlertBusEntryPoint {
     fun riskAlertBus(): RiskAlertBus
+}
+
+@EntryPoint
+@InstallIn(SingletonComponent::class)
+interface ProfileEntryPoint {
+    fun userPreferencesRepository(): UserPreferencesRepository
 }
 
 @Composable
@@ -45,6 +59,20 @@ fun AlcoLarmNavHost(
         context.applicationContext,
         RiskAlertBusEntryPoint::class.java,
     ).riskAlertBus()
+    val profileRepo = EntryPointAccessors.fromApplication(
+        context.applicationContext,
+        ProfileEntryPoint::class.java,
+    ).userPreferencesRepository()
+    val profile by profileRepo.profile.collectAsStateWithLifecycle(
+        initialValue = com.alcolarm.core.model.UserProfile(),
+    )
+
+    fun goHomeClearingAlertStack() {
+        navController.navigate(Routes.Home) {
+            popUpTo(Routes.Home) { inclusive = false }
+            launchSingleTop = true
+        }
+    }
 
     LaunchedEffect(navController) {
         alertBus.events.collect { event ->
@@ -65,7 +93,6 @@ fun AlcoLarmNavHost(
         if (!openAlertRequested) return@LaunchedEffect
         val current = navController.currentDestination?.route
         if (current != Routes.Alert) {
-            // Ensure we leave splash/onboarding if needed — prefer Home→Alert stack.
             if (current == Routes.Splash || current == null) {
                 navController.navigate(Routes.Home) {
                     popUpTo(Routes.Splash) { inclusive = true }
@@ -124,14 +151,82 @@ fun AlcoLarmNavHost(
         }
         composable(Routes.Home) {
             HomeRoute(
-                showSimulateAlert = BuildConfig.DEBUG,
+                onPauseReflect = {
+                    navController.navigate(
+                        Routes.reflection(mode = "optional", affirmation = false),
+                    )
+                },
             )
         }
         composable(Routes.Alert) {
             AlertRoute(
+                onPauseReflect = {
+                    alertBus.tryEmitDismissed()
+                    navController.navigate(
+                        Routes.reflection(mode = "optional", affirmation = false),
+                    ) {
+                        popUpTo(Routes.Alert) { inclusive = true }
+                    }
+                },
+                onDialReturn = {
+                    navController.navigate(Routes.CallOutcome) {
+                        popUpTo(Routes.Alert) { inclusive = true }
+                    }
+                },
                 onDismiss = {
                     alertBus.tryEmitDismissed()
                     navController.popBackStack()
+                },
+            )
+        }
+        composable(Routes.CallOutcome) {
+            CallOutcomeRoute(
+                contactName = profile.emergencyContact.name,
+                onReachedThem = {
+                    alertBus.tryEmitDismissed()
+                    navController.navigate(Routes.ReachedPraise) {
+                        popUpTo(Routes.CallOutcome) { inclusive = true }
+                    }
+                },
+                onDidNotAnswer = {
+                    alertBus.tryEmitDismissed()
+                    navController.navigate(
+                        Routes.reflection(mode = "mandatory", affirmation = true),
+                    ) {
+                        popUpTo(Routes.CallOutcome) { inclusive = true }
+                    }
+                },
+            )
+        }
+        composable(Routes.ReachedPraise) {
+            ReachedPraiseRoute(
+                onDone = { goHomeClearingAlertStack() },
+            )
+        }
+        composable(
+            route = Routes.Reflection,
+            arguments = listOf(
+                navArgument("mode") { type = NavType.StringType },
+                navArgument("affirmation") { type = NavType.StringType },
+            ),
+        ) { entry ->
+            val modeArg = entry.arguments?.getString("mode") ?: "optional"
+            val affirmation = entry.arguments?.getString("affirmation") == "1"
+            val mode = if (modeArg == "mandatory") {
+                ReflectionMode.MANDATORY
+            } else {
+                ReflectionMode.OPTIONAL
+            }
+            ReflectionRoute(
+                mode = mode,
+                showAffirmationFirst = affirmation,
+                onFinished = {
+                    alertBus.tryEmitDismissed()
+                    goHomeClearingAlertStack()
+                },
+                onSkip = {
+                    alertBus.tryEmitDismissed()
+                    goHomeClearingAlertStack()
                 },
             )
         }
