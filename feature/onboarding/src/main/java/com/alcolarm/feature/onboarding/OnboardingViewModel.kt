@@ -11,6 +11,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -23,6 +24,7 @@ data class OnboardingUiState(
     /** Relative paths under filesDir (family_photos/…) from [FamilyPhotoStore]. */
     val familyPhotoUris: List<String> = emptyList(),
     val saved: Boolean = false,
+    val loaded: Boolean = false,
 )
 
 @HiltViewModel
@@ -33,6 +35,21 @@ class OnboardingViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(OnboardingUiState())
     val uiState: StateFlow<OnboardingUiState> = _uiState.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            val profile = repository.profile.first()
+            _uiState.update {
+                it.copy(
+                    selectedReasons = profile.quitReasons,
+                    healthNotes = profile.healthNotes,
+                    familyNotes = profile.familyNotes,
+                    familyPhotoUris = profile.familyPhotoUris,
+                    loaded = true,
+                )
+            }
+        }
+    }
 
     fun toggleReason(id: QuitReasonId) {
         _uiState.update { state ->

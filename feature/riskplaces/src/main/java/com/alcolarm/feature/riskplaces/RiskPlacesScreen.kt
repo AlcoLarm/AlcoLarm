@@ -26,11 +26,13 @@ private val placeLabels = RiskPlaceId.entries.map { it to it.displayLabel }
 @Composable
 fun RiskPlacesRoute(
     onContinue: () -> Unit,
+    editMode: Boolean = false,
     viewModel: RiskPlacesViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     RiskPlacesScreen(
         state = state,
+        editMode = editMode,
         onToggle = viewModel::toggle,
         onContinue = { viewModel.saveAndContinue(onContinue) },
     )
@@ -42,6 +44,7 @@ fun RiskPlacesScreen(
     state: RiskPlacesUiState,
     onToggle: (RiskPlaceId) -> Unit,
     onContinue: () -> Unit,
+    editMode: Boolean = false,
 ) {
     Column(
         modifier = Modifier
@@ -74,7 +77,7 @@ fun RiskPlacesScreen(
         }
         Spacer(Modifier.weight(1f))
         SignalPrimaryButton(
-            text = "Continue",
+            text = if (editMode) "Save" else "Continue",
             onClick = onContinue,
             enabled = state.selected.isNotEmpty(),
         )

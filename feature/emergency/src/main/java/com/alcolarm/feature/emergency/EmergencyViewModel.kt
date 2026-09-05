@@ -8,6 +8,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -15,6 +16,7 @@ import javax.inject.Inject
 data class EmergencyUiState(
     val name: String = "",
     val phoneNumber: String = "",
+    val loaded: Boolean = false,
 )
 
 @HiltViewModel
@@ -24,6 +26,19 @@ class EmergencyViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(EmergencyUiState())
     val uiState: StateFlow<EmergencyUiState> = _uiState.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            val profile = repository.profile.first()
+            _uiState.update {
+                it.copy(
+                    name = profile.emergencyContact.name,
+                    phoneNumber = profile.emergencyContact.phoneNumber,
+                    loaded = true,
+                )
+            }
+        }
+    }
 
     fun updateName(value: String) {
         _uiState.update { it.copy(name = value) }

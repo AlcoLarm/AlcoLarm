@@ -28,12 +28,14 @@ import com.alcolarm.core.designsystem.theme.ClearSignalColors
 @Composable
 fun EmergencyRoute(
     onContinue: () -> Unit,
+    editMode: Boolean = false,
     viewModel: EmergencyViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     EmergencyScreen(
         state = state,
+        editMode = editMode,
         canContinue = state.name.isNotBlank() &&
             state.phoneNumber.filter { it.isDigit() }.length >= 7,
         onName = viewModel::updateName,
@@ -59,6 +61,7 @@ fun EmergencyScreen(
     onPhone: (String) -> Unit,
     onTestDial: () -> Unit,
     onContinue: () -> Unit,
+    editMode: Boolean = false,
 ) {
     Column(
         modifier = Modifier
@@ -103,7 +106,7 @@ fun EmergencyScreen(
         )
         Spacer(Modifier.weight(1f))
         SignalPrimaryButton(
-            text = "Finish setup",
+            text = if (editMode) "Save" else "Finish setup",
             onClick = onContinue,
             enabled = canContinue,
         )
