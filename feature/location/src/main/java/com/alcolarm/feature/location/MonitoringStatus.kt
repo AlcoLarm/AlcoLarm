@@ -10,9 +10,17 @@ enum class MonitoringUiState {
     CHECK_ERROR,
 }
 
+enum class WatchModeUi {
+    OFF,
+    FOREGROUND_ONLY,
+    BACKGROUND,
+}
+
 data class HomeMonitoringUi(
     val permissionGranted: Boolean = false,
     val monitoringActive: Boolean = false,
+    val watchMode: WatchModeUi = WatchModeUi.OFF,
+    val needsBackgroundLocation: Boolean = false,
     val uiState: MonitoringUiState = MonitoringUiState.PERMISSION_NEEDED,
     val statusMessage: String = "Permission needed",
     val lastMatchedPlaceName: String? = null,
