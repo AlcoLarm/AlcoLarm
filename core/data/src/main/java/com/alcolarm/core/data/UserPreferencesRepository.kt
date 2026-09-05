@@ -15,6 +15,12 @@ import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
 
+/** Local-only answers from the two fill-in reflection questions. */
+data class StoredReflectionAnswers(
+    val turnAround: String = "",
+    val drinkAgain: String = "",
+)
+
 /**
  * DataStore-backed prefs. Intentionally stores no location history —
  * only live location is used at runtime (see :feature:location).
@@ -41,6 +47,14 @@ class UserPreferencesRepository @Inject constructor(
                 name = prefs[Keys.EMERGENCY_NAME] ?: "",
                 phoneNumber = prefs[Keys.EMERGENCY_PHONE] ?: "",
             ),
+        )
+    }
+
+
+    val reflectionAnswers: Flow<StoredReflectionAnswers> = dataStore.data.map { prefs ->
+        StoredReflectionAnswers(
+            turnAround = prefs[Keys.REFLECTION_TURN_AROUND] ?: "",
+            drinkAgain = prefs[Keys.REFLECTION_DRINK_AGAIN] ?: "",
         )
     }
 
@@ -89,6 +103,26 @@ class UserPreferencesRepository @Inject constructor(
         }
     }
 
+
+    suspend fun setReflectionTurnAroundAnswer(answer: String) {
+        dataStore.edit { prefs ->
+            prefs[Keys.REFLECTION_TURN_AROUND] = answer
+        }
+    }
+
+    suspend fun setReflectionDrinkAgainAnswer(answer: String) {
+        dataStore.edit { prefs ->
+            prefs[Keys.REFLECTION_DRINK_AGAIN] = answer
+        }
+    }
+
+    suspend fun setReflectionAnswers(turnAround: String, drinkAgain: String) {
+        dataStore.edit { prefs ->
+            prefs[Keys.REFLECTION_TURN_AROUND] = turnAround
+            prefs[Keys.REFLECTION_DRINK_AGAIN] = drinkAgain
+        }
+    }
+
     private object Keys {
         val ONBOARDING_COMPLETE = booleanPreferencesKey("onboarding_complete")
         val QUIT_REASONS = stringSetPreferencesKey("quit_reasons")
@@ -99,5 +133,7 @@ class UserPreferencesRepository @Inject constructor(
         val EMERGENCY_NAME = stringPreferencesKey("emergency_name")
         val EMERGENCY_PHONE = stringPreferencesKey("emergency_phone")
         val BACKGROUND_WATCH_ENABLED = booleanPreferencesKey("background_watch_enabled")
+        val REFLECTION_TURN_AROUND = stringPreferencesKey("reflection_turn_around")
+        val REFLECTION_DRINK_AGAIN = stringPreferencesKey("reflection_drink_again")
     }
 }
