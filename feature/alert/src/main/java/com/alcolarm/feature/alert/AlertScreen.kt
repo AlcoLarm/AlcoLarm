@@ -174,8 +174,8 @@ fun AlertScreen(
                         Brush.verticalGradient(
                             colorStops = arrayOf(
                                 0f to Color.Transparent,
-                                0.25f to ClearSignalColors.NearBlack.copy(alpha = 0.55f),
-                                0.55f to ClearSignalColors.NearBlack.copy(alpha = 0.88f),
+                                0.2f to ClearSignalColors.NearBlack.copy(alpha = 0.35f),
+                                0.5f to ClearSignalColors.NearBlack.copy(alpha = 0.88f),
                                 1f to ClearSignalColors.NearBlack,
                             ),
                         ),

@@ -113,11 +113,11 @@ fun EmergencyScreen(
 
 @Composable
 private fun fieldColors() = OutlinedTextFieldDefaults.colors(
-    focusedBorderColor = ClearSignalColors.Amber,
+    focusedBorderColor = ClearSignalColors.SoftBlue,
     unfocusedBorderColor = ClearSignalColors.Outline,
     focusedTextColor = ClearSignalColors.OnDark,
     unfocusedTextColor = ClearSignalColors.OnDark,
-    focusedLabelColor = ClearSignalColors.Amber,
+    focusedLabelColor = ClearSignalColors.SoftBlue,
     unfocusedLabelColor = ClearSignalColors.OnDarkMuted,
-    cursorColor = ClearSignalColors.Amber,
+    cursorColor = ClearSignalColors.SoftBlue,
 )

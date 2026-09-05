@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -19,6 +20,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -26,8 +28,8 @@ import androidx.compose.ui.unit.sp
 import com.alcolarm.core.designsystem.theme.ClearSignalColors
 
 /**
- * Neo brutal pause / alert banner — large tappable top strip, hard to miss.
- * Direction D energy on top of Nordic calm everyday UI.
+ * Large, obvious pause / alert banner — soft sage Quiet Companion styling,
+ * still big and easy to hit on Alert (+ Home when near-risk).
  */
 @Composable
 fun PauseBanner(
@@ -38,20 +40,22 @@ fun PauseBanner(
 ) {
     val infinite = rememberInfiniteTransition(label = "pauseBanner")
     val alpha by infinite.animateFloat(
-        initialValue = 0.88f,
+        initialValue = 0.92f,
         targetValue = 1f,
         animationSpec = infiniteRepeatable(
-            animation = tween(700, easing = LinearEasing),
+            animation = tween(900, easing = LinearEasing),
             repeatMode = RepeatMode.Reverse,
         ),
         label = "pauseBannerAlpha",
     )
+    val shape = RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp)
     Column(
         modifier = modifier
             .fillMaxWidth()
             .alpha(alpha)
+            .clip(shape)
             .background(ClearSignalColors.NeoBrutalAmber)
-            .border(4.dp, ClearSignalColors.NeoBrutalInk)
+            .border(2.dp, ClearSignalColors.SoftBlue, shape)
             .then(
                 if (onClick != null) {
                     Modifier.clickable(onClick = onClick)
@@ -59,14 +63,14 @@ fun PauseBanner(
                     Modifier
                 },
             )
-            .padding(vertical = 22.dp, horizontal = 20.dp),
+            .padding(vertical = 24.dp, horizontal = 20.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
             text = title,
             style = MaterialTheme.typography.headlineLarge.copy(
-                fontWeight = FontWeight.Black,
-                letterSpacing = 2.sp,
+                fontWeight = FontWeight.Bold,
+                letterSpacing = 1.5.sp,
             ),
             color = ClearSignalColors.NeoBrutalInk,
             textAlign = TextAlign.Center,

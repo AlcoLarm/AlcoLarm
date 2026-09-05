@@ -122,7 +122,7 @@ fun ReflectionScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(140.dp)
-                    .clip(RoundedCornerShape(16.dp)),
+                    .clip(RoundedCornerShape(24.dp)),
             )
             Spacer(Modifier.height(16.dp))
         }

@@ -1,21 +1,21 @@
 package com.alcolarm.core.designsystem.theme
 
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
-private val NordicCalmScheme = darkColorScheme(
+private val QuietCompanionScheme = lightColorScheme(
     primary = ClearSignalColors.SoftBlue,
-    onPrimary = ClearSignalColors.NearBlack,
+    onPrimary = Color.White,
     primaryContainer = ClearSignalColors.SoftBlueContainer,
-    onPrimaryContainer = ClearSignalColors.SoftBlue,
+    onPrimaryContainer = ClearSignalColors.OnDark,
     secondary = ClearSignalColors.Amber,
-    onSecondary = ClearSignalColors.NearBlack,
+    onSecondary = ClearSignalColors.OnDark,
     secondaryContainer = ClearSignalColors.AmberContainer,
-    onSecondaryContainer = ClearSignalColors.Amber,
+    onSecondaryContainer = ClearSignalColors.OnDark,
     tertiary = ClearSignalColors.TealSupport,
-    onTertiary = ClearSignalColors.NearBlack,
+    onTertiary = Color.White,
     background = ClearSignalColors.NearBlack,
     onBackground = ClearSignalColors.OnDark,
     surface = ClearSignalColors.Surface,
@@ -30,7 +30,7 @@ private val NordicCalmScheme = darkColorScheme(
 @Composable
 fun AlcoLarmTheme(content: @Composable () -> Unit) {
     MaterialTheme(
-        colorScheme = NordicCalmScheme,
+        colorScheme = QuietCompanionScheme,
         typography = ClearSignalTypography,
         content = content,
     )

@@ -321,7 +321,7 @@ private fun MonitoringCard(monitoring: HomeMonitoringUi) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(ClearSignalColors.Surface, RoundedCornerShape(16.dp))
+            .background(ClearSignalColors.Surface, RoundedCornerShape(24.dp))
             .padding(16.dp),
     ) {
         Text(
