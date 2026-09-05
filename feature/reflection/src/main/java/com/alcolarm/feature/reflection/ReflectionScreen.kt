@@ -2,29 +2,27 @@ package com.alcolarm.feature.reflection
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
@@ -37,9 +35,14 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.alcolarm.core.designsystem.component.SignalPrimaryButton
 import com.alcolarm.core.designsystem.theme.ClearSignalColors
-import com.alcolarm.core.model.UserProfile
 import java.io.File
-import kotlinx.coroutines.launch
+
+private enum class ReflectionPage {
+    Affirmation,
+    TurnAround,
+    DrinkAgain,
+    Closing,
+}
 
 @Composable
 fun ReflectionRoute(
@@ -49,14 +52,21 @@ fun ReflectionRoute(
     onSkip: () -> Unit,
     viewModel: ReflectionViewModel = hiltViewModel(),
 ) {
-    val profile by viewModel.profile.collectAsStateWithLifecycle()
     val photos by viewModel.photoFiles.collectAsStateWithLifecycle()
+    val answers by viewModel.answers.collectAsStateWithLifecycle()
+    val prefillReady by viewModel.prefillReady.collectAsStateWithLifecycle()
 
     ReflectionScreen(
-        profile = profile,
         photoFiles = photos,
+        answers = answers,
+        prefillReady = prefillReady,
         mode = mode,
         showAffirmationFirst = showAffirmationFirst,
+        onTurnAroundChanged = viewModel::onTurnAroundChanged,
+        onDrinkAgainChanged = viewModel::onDrinkAgainChanged,
+        onPersistTurnAround = viewModel::persistTurnAround,
+        onPersistDrinkAgain = viewModel::persistDrinkAgain,
+        onPersistBoth = viewModel::persistBoth,
         onFinished = onFinished,
         onSkip = onSkip,
     )
@@ -64,29 +74,29 @@ fun ReflectionRoute(
 
 @Composable
 fun ReflectionScreen(
-    profile: UserProfile,
     photoFiles: List<File>,
+    answers: ReflectionAnswers,
+    prefillReady: Boolean,
     mode: ReflectionMode,
     showAffirmationFirst: Boolean,
+    onTurnAroundChanged: (String) -> Unit,
+    onDrinkAgainChanged: (String) -> Unit,
+    onPersistTurnAround: () -> Unit,
+    onPersistDrinkAgain: () -> Unit,
+    onPersistBoth: () -> Unit,
     onFinished: () -> Unit,
     onSkip: () -> Unit,
 ) {
-    val cards = ReflectionCopy.buildCards(profile)
     val pages = buildList {
-        if (showAffirmationFirst) {
-            add(
-                ReflectionCard(
-                    title = ReflectionCopy.AFFIRMATION_TITLE,
-                    body = ReflectionCopy.AFFIRMATION_BODY,
-                ),
-            )
-        }
-        addAll(cards)
+        if (showAffirmationFirst) add(ReflectionPage.Affirmation)
+        add(ReflectionPage.TurnAround)
+        add(ReflectionPage.DrinkAgain)
+        add(ReflectionPage.Closing)
     }
-    val pagerState = rememberPagerState(pageCount = { pages.size })
-    val scope = rememberCoroutineScope()
+    var pageIndex by rememberSaveable { mutableIntStateOf(0) }
+    val page = pages[pageIndex.coerceIn(0, pages.lastIndex)]
     val allowSkip = mode == ReflectionMode.OPTIONAL
-    val isLast = pagerState.currentPage >= pages.lastIndex
+    val isLast = pageIndex >= pages.lastIndex
 
     BackHandler(enabled = !allowSkip) { /* mandatory: stay */ }
     BackHandler(enabled = allowSkip) { onSkip() }
@@ -100,92 +110,118 @@ fun ReflectionScreen(
             .padding(24.dp),
     ) {
         Text(
-            text = if (showAffirmationFirst && pagerState.currentPage == 0) {
-                "You reached out"
-            } else {
-                "A moment to reflect"
+            text = when (page) {
+                ReflectionPage.Affirmation -> ReflectionCopy.AFFIRMATION_HEADER
+                else -> ReflectionCopy.SCREEN_TITLE
             },
             style = MaterialTheme.typography.labelLarge,
             color = ClearSignalColors.OnDarkMuted,
         )
         Spacer(Modifier.height(8.dp))
 
-        if (photoFiles.isNotEmpty() && !(showAffirmationFirst && pagerState.currentPage == 0)) {
-            val context = LocalContext.current
-            AsyncImage(
-                model = ImageRequest.Builder(context)
-                    .data(photoFiles.first())
-                    .crossfade(true)
-                    .build(),
-                contentDescription = "Photo of loved ones",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(140.dp)
-                    .clip(RoundedCornerShape(24.dp)),
-            )
-            Spacer(Modifier.height(16.dp))
-        }
-
-        HorizontalPager(
-            state = pagerState,
+        Column(
             modifier = Modifier
                 .weight(1f)
-                .fillMaxWidth(),
-            userScrollEnabled = allowSkip,
-        ) { page ->
-            val card = pages[page]
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
-            ) {
-                Text(
-                    text = card.title,
-                    style = MaterialTheme.typography.headlineLarge,
-                    color = ClearSignalColors.OnDark,
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState()),
+        ) {
+            if (photoFiles.isNotEmpty() && page != ReflectionPage.Affirmation) {
+                val context = LocalContext.current
+                AsyncImage(
+                    model = ImageRequest.Builder(context)
+                        .data(photoFiles.first())
+                        .crossfade(true)
+                        .build(),
+                    contentDescription = "Photo of loved ones",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(120.dp)
+                        .clip(RoundedCornerShape(24.dp)),
                 )
                 Spacer(Modifier.height(16.dp))
-                Text(
-                    text = card.body,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = ClearSignalColors.OnDarkMuted,
-                )
+            }
+
+            when (page) {
+                ReflectionPage.Affirmation -> {
+                    Text(
+                        text = ReflectionCopy.AFFIRMATION_TITLE,
+                        style = MaterialTheme.typography.headlineLarge,
+                        color = ClearSignalColors.OnDark,
+                    )
+                    Spacer(Modifier.height(16.dp))
+                    Text(
+                        text = ReflectionCopy.AFFIRMATION_BODY,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = ClearSignalColors.OnDarkMuted,
+                    )
+                }
+                ReflectionPage.TurnAround -> {
+                    QuestionPage(
+                        question = ReflectionCopy.QUESTION_TURN_AROUND,
+                        value = answers.turnAround,
+                        onValueChange = onTurnAroundChanged,
+                        placeholder = ReflectionCopy.TURN_AROUND_PLACEHOLDER,
+                        ready = prefillReady,
+                    )
+                }
+                ReflectionPage.DrinkAgain -> {
+                    QuestionPage(
+                        question = ReflectionCopy.QUESTION_DRINK_AGAIN,
+                        value = answers.drinkAgain,
+                        onValueChange = onDrinkAgainChanged,
+                        placeholder = ReflectionCopy.DRINK_AGAIN_PLACEHOLDER,
+                        ready = prefillReady,
+                    )
+                }
+                ReflectionPage.Closing -> {
+                    Text(
+                        text = ReflectionCopy.CLOSING_TITLE,
+                        style = MaterialTheme.typography.headlineLarge,
+                        color = ClearSignalColors.OnDark,
+                    )
+                    Spacer(Modifier.height(16.dp))
+                    Text(
+                        text = ReflectionCopy.CLOSING_BODY,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = ClearSignalColors.OnDarkMuted,
+                    )
+                }
             }
         }
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 16.dp),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            pages.indices.forEach { i ->
-                Box(
-                    modifier = Modifier
-                        .padding(horizontal = 4.dp)
-                        .size(if (i == pagerState.currentPage) 10.dp else 8.dp)
-                        .clip(CircleShape)
-                        .background(
-                            if (i == pagerState.currentPage) ClearSignalColors.SoftBlue
-                            else ClearSignalColors.Outline,
-                        ),
-                )
-            }
+        Spacer(Modifier.height(12.dp))
+
+        val canContinue = when (page) {
+            ReflectionPage.TurnAround -> answers.turnAround.trim().isNotEmpty()
+            ReflectionPage.DrinkAgain -> answers.drinkAgain.trim().isNotEmpty()
+            ReflectionPage.Affirmation, ReflectionPage.Closing -> true
         }
 
-        if (isLast) {
-            SignalPrimaryButton(text = "I’m ready", onClick = onFinished)
-        } else {
-            SignalPrimaryButton(
-                text = "Continue",
-                onClick = {
-                    scope.launch {
-                        pagerState.animateScrollToPage(pagerState.currentPage + 1)
+        SignalPrimaryButton(
+            text = when {
+                isLast -> "I’m ready"
+                page == ReflectionPage.Affirmation -> "Continue"
+                else -> "Continue"
+            },
+            enabled = canContinue,
+            onClick = {
+                when (page) {
+                    ReflectionPage.TurnAround -> onPersistTurnAround()
+                    ReflectionPage.DrinkAgain -> {
+                        onPersistDrinkAgain()
+                        onPersistBoth()
                     }
-                },
-            )
-        }
+                    ReflectionPage.Closing -> onPersistBoth()
+                    ReflectionPage.Affirmation -> Unit
+                }
+                if (isLast) {
+                    onFinished()
+                } else {
+                    pageIndex += 1
+                }
+            },
+        )
 
         if (allowSkip) {
             Spacer(Modifier.height(8.dp))
@@ -201,7 +237,7 @@ fun ReflectionScreen(
         } else {
             Spacer(Modifier.height(12.dp))
             Text(
-                text = "Take your time — Continue when you’re ready.",
+                text = ReflectionCopy.MANDATORY_HINT,
                 style = MaterialTheme.typography.bodyMedium,
                 color = ClearSignalColors.OnDarkMuted,
                 textAlign = TextAlign.Center,
@@ -210,3 +246,45 @@ fun ReflectionScreen(
         }
     }
 }
+
+@Composable
+private fun QuestionPage(
+    question: String,
+    value: String,
+    onValueChange: (String) -> Unit,
+    placeholder: String,
+    ready: Boolean,
+) {
+    Text(
+        text = question,
+        style = MaterialTheme.typography.headlineLarge,
+        color = ClearSignalColors.OnDark,
+    )
+    Spacer(Modifier.height(16.dp))
+    if (ready) {
+        OutlinedTextField(
+            value = value,
+            onValueChange = onValueChange,
+            modifier = Modifier.fillMaxWidth(),
+            placeholder = {
+                Text(placeholder)
+            },
+            minLines = 5,
+            maxLines = 10,
+            colors = reflectionFieldColors(),
+        )
+    }
+}
+
+@Composable
+private fun reflectionFieldColors() = OutlinedTextFieldDefaults.colors(
+    focusedBorderColor = ClearSignalColors.SoftBlue,
+    unfocusedBorderColor = ClearSignalColors.Outline,
+    focusedTextColor = ClearSignalColors.OnDark,
+    unfocusedTextColor = ClearSignalColors.OnDark,
+    cursorColor = ClearSignalColors.SoftBlue,
+    focusedContainerColor = ClearSignalColors.Surface,
+    unfocusedContainerColor = ClearSignalColors.Surface,
+    focusedPlaceholderColor = ClearSignalColors.OnDarkMuted,
+    unfocusedPlaceholderColor = ClearSignalColors.OnDarkMuted,
+)
