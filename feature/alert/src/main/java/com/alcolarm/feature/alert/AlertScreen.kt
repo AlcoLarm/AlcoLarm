@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
@@ -19,6 +20,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,10 +49,19 @@ fun AlertRoute(
     val profile by viewModel.profile.collectAsStateWithLifecycle()
     val familyPhotos by viewModel.familyPhotoFiles.collectAsStateWithLifecycle()
     val context = LocalContext.current
+
+    DisposableEffect(Unit) {
+        viewModel.startCallStyleAlert()
+        onDispose {
+            viewModel.stopCallStyleAlert()
+        }
+    }
+
     AlertScreen(
         profile = profile,
         familyPhotoFiles = familyPhotos,
         onDial = {
+            viewModel.stopCallStyleAlert()
             val phone = profile.emergencyContact.phoneNumber
             if (phone.isNotBlank()) {
                 context.startActivity(
@@ -60,7 +71,10 @@ fun AlertRoute(
                 )
             }
         },
-        onDismiss = onDismiss,
+        onDismiss = {
+            viewModel.stopCallStyleAlert()
+            onDismiss()
+        },
     )
 }
 
@@ -76,12 +90,27 @@ fun AlertScreen(
         .trim()
         .substringBefore(" ")
         .ifBlank { "Dial" }
+    val callLabel = profile.emergencyContact.name
+        .trim()
+        .ifBlank { "Incoming call" }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(ClearSignalColors.NearBlack),
     ) {
+        // Subtle call metaphor (private in-app; public notification stays anonymous).
+        Text(
+            text = callLabel,
+            style = MaterialTheme.typography.labelLarge,
+            color = ClearSignalColors.OnDarkMuted,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .statusBarsPadding()
+                .padding(top = 8.dp, bottom = 4.dp),
+        )
+
         AlarmStrip(
             message = "Pause. You’ve got this.",
             modifier = Modifier.padding(vertical = 0.dp),

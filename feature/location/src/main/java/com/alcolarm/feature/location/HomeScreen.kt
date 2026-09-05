@@ -2,6 +2,7 @@ package com.alcolarm.feature.location
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -18,7 +19,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -43,6 +48,10 @@ fun HomeRoute(
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
 
+    var notificationsGranted by remember {
+        mutableStateOf(hasNotificationPermission(context))
+    }
+
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions(),
     ) { result ->
@@ -51,7 +60,13 @@ fun HomeRoute(
         viewModel.onPermissionResult(granted)
     }
 
-    fun hasPermission(): Boolean {
+    val notificationLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission(),
+    ) { granted ->
+        notificationsGranted = granted || hasNotificationPermission(context)
+    }
+
+    fun hasLocationPermission(): Boolean {
         val fine = ContextCompat.checkSelfPermission(
             context,
             Manifest.permission.ACCESS_FINE_LOCATION,
@@ -63,12 +78,21 @@ fun HomeRoute(
         return fine || coarse
     }
 
+    LaunchedEffect(Unit) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            !hasNotificationPermission(context)
+        ) {
+            notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
+    }
+
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
                 Lifecycle.Event.ON_RESUME -> {
                     viewModel.refreshPermissionFromSystem()
-                    if (hasPermission()) {
+                    notificationsGranted = hasNotificationPermission(context)
+                    if (hasLocationPermission()) {
                         viewModel.startMonitoring()
                     }
                 }
@@ -89,6 +113,7 @@ fun HomeRoute(
         profile = profile,
         monitoring = monitoring,
         showSimulateAlert = showSimulateAlert,
+        notificationsGranted = notificationsGranted,
         onRequestLocationPermission = {
             permissionLauncher.launch(
                 arrayOf(
@@ -97,8 +122,21 @@ fun HomeRoute(
                 ),
             )
         },
+        onRequestNotificationPermission = {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        },
         onSimulateAlert = { viewModel.simulateAlert() },
     )
+}
+
+private fun hasNotificationPermission(context: android.content.Context): Boolean {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return true
+    return ContextCompat.checkSelfPermission(
+        context,
+        Manifest.permission.POST_NOTIFICATIONS,
+    ) == PackageManager.PERMISSION_GRANTED
 }
 
 @Composable
@@ -106,7 +144,9 @@ fun HomeScreen(
     profile: UserProfile,
     monitoring: HomeMonitoringUi,
     showSimulateAlert: Boolean,
+    notificationsGranted: Boolean,
     onRequestLocationPermission: () -> Unit,
+    onRequestNotificationPermission: () -> Unit,
     onSimulateAlert: () -> Unit,
 ) {
     Column(
@@ -141,6 +181,20 @@ fun HomeScreen(
             SignalPrimaryButton(
                 text = "Allow location",
                 onClick = onRequestLocationPermission,
+            )
+        }
+
+        if (!notificationsGranted && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            Spacer(Modifier.height(16.dp))
+            Text(
+                text = "Allow notifications so a discreet call-style alert can reach you when needed.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = ClearSignalColors.OnDarkMuted,
+            )
+            Spacer(Modifier.height(12.dp))
+            SignalPrimaryButton(
+                text = "Allow notifications",
+                onClick = onRequestNotificationPermission,
             )
         }
 
