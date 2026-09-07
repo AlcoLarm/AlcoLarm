@@ -17,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -69,13 +70,13 @@ fun EmergencyScreen(
             .padding(24.dp),
     ) {
         Text(
-            text = "Who can you call?",
+            text = stringResource(R.string.emergency_title),
             style = MaterialTheme.typography.headlineLarge,
             color = ClearSignalColors.OnDark,
         )
         Spacer(Modifier.height(8.dp))
         Text(
-            text = "One trusted person. On an alert, Dial opens your phone app — nothing is sent automatically.",
+            text = stringResource(R.string.emergency_subtitle),
             style = MaterialTheme.typography.bodyLarge,
             color = ClearSignalColors.OnDarkMuted,
         )
@@ -84,7 +85,7 @@ fun EmergencyScreen(
             value = state.name,
             onValueChange = onName,
             modifier = Modifier.fillMaxWidth(),
-            label = { Text("Name") },
+            label = { Text(stringResource(R.string.emergency_name)) },
             singleLine = true,
             colors = fieldColors(),
         )
@@ -93,20 +94,24 @@ fun EmergencyScreen(
             value = state.phoneNumber,
             onValueChange = onPhone,
             modifier = Modifier.fillMaxWidth(),
-            label = { Text("Phone number") },
+            label = { Text(stringResource(R.string.emergency_phone)) },
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
             colors = fieldColors(),
         )
         Spacer(Modifier.height(16.dp))
         SignalSecondaryButton(
-            text = "Test dial (opens phone app)",
+            text = stringResource(R.string.emergency_test_dial),
             onClick = onTestDial,
             enabled = state.phoneNumber.isNotBlank(),
         )
         Spacer(Modifier.weight(1f))
         SignalPrimaryButton(
-            text = if (editMode) "Save" else "Finish setup",
+            text = if (editMode) {
+                stringResource(R.string.action_save)
+            } else {
+                stringResource(R.string.emergency_finish)
+            },
             onClick = onContinue,
             enabled = canContinue,
         )

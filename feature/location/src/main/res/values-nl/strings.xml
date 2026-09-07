@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="risk_watch_notification_channel">Locatie</string>
+    <string name="risk_watch_notification_channel_desc">Zichtbaar terwijl AlcoLarm locatie gebruikt</string>
+    <string name="risk_watch_notification_title">AlcoLarm is actief</string>
+    <string name="risk_watch_notification_text">Locatie aan</string>
+
+    <string name="home_title">Je bent klaar</string>
+    <string name="home_subtitle">We volgen risicoplaatsen in de buurt via open kaartgegevens. We bewaren geen locatiegeschiedenis.</string>
+    <string name="home_pause_title">PAUZE</string>
+    <string name="home_pause_subtitle">Risico in de buurt — tik om adem te halen &amp; te reflecteren</string>
+    <string name="home_location_privacy">AlcoLarm gebruikt je locatie alleen om je te waarschuwen bij plaatsen die jij als riskant markeerde — we bewaren geen locatiegeschiedenis.</string>
+    <string name="home_allow_location">Locatie toestaan</string>
+    <string name="home_background_rationale">Om waarschuwingen te laten werken als de app gesloten is, sta locatie “altijd” toe in de systeeminstellingen. AlcoLarm toont een eenvoudige melding “Locatie aan” tijdens het volgen — niets over alcohol of herstel.</string>
+    <string name="home_allow_background_location">Achtergrondlocatie toestaan</string>
+    <string name="home_notifications_rationale">Sta meldingen toe zodat een discrete bel-stijl waarschuwing je kan bereiken wanneer nodig.</string>
+    <string name="home_allow_notifications">Meldingen toestaan</string>
+    <string name="home_your_reasons">Jouw redenen</string>
+    <string name="home_risk_places">Risicoplaatsen</string>
+    <string name="home_emergency_contact">Noodcontact</string>
+    <string name="home_none_selected">Nog niets geselecteerd</string>
+    <string name="home_not_set">Niet ingesteld</string>
+    <string name="home_settings">Instellingen</string>
+    <string name="home_simulate_hint">Probeer de bel-stijl waarschuwing wanneer je wilt — handig om te oefenen en te testen.</string>
+    <string name="home_simulate_button">Risicowaarschuwing simuleren</string>
+    <string name="home_live_risk_watch">Live risicobewaking</string>
+    <string name="home_location_off">Locatie: uit</string>
+    <string name="home_monitoring_background">Monitoring: aan (achtergrond)</string>
+    <string name="home_monitoring_foreground">Monitoring: aan (voorgrond)</string>
+    <string name="home_monitoring_paused">Monitoring: gepauzeerd</string>
+    <string name="home_cd_settings">Instellingen</string>
+    <string name="home_simulated_place">Gesimuleerde plaats</string>
+
+    <string name="status_permission_needed">Toestemming nodig</string>
+    <string name="status_starting">Bezig met starten…</string>
+    <string name="status_no_detectable_risks">Selecteer café / slijterij / supermarkt / feest om te volgen</string>
+    <string name="status_getting_location">Locatie ophalen…</string>
+    <string name="status_watching">Risicoplaatsen in de buurt volgen via open kaartgegevens…</string>
+    <string name="status_near_confirming">In de buurt — bevestigen dat je gestopt bent…</string>
+    <string name="status_check_failed">Controle mislukt — opnieuw proberen</string>
+    <string name="status_background_location_needed">Achtergrondlocatie nodig voor waarschuwingen als de app gesloten is</string>
+</resources>

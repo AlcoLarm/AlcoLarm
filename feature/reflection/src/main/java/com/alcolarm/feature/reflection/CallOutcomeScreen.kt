@@ -14,6 +14,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.alcolarm.core.designsystem.component.SignalPrimaryButton
 import com.alcolarm.core.designsystem.component.SignalUrgentButton
@@ -39,7 +40,7 @@ fun CallOutcomeScreen(
     onReachedThem: () -> Unit,
     onDidNotAnswer: () -> Unit,
 ) {
-    val label = contactName.trim().ifBlank { "them" }
+    val label = contactName.trim().ifBlank { stringResource(R.string.call_outcome_them) }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -50,31 +51,29 @@ fun CallOutcomeScreen(
     ) {
         Spacer(Modifier.height(32.dp))
         Text(
-            text = "How did it go?",
+            text = stringResource(R.string.call_outcome_title),
             style = MaterialTheme.typography.headlineLarge,
             color = ClearSignalColors.OnDark,
         )
         Spacer(Modifier.height(12.dp))
         Text(
-            text = "You opened the dialer for $label. Tell us what happened — " +
-                "we’ll meet you where you are.",
+            text = stringResource(R.string.call_outcome_body, label),
             style = MaterialTheme.typography.bodyLarge,
             color = ClearSignalColors.OnDarkMuted,
         )
         Spacer(Modifier.weight(1f))
         SignalUrgentButton(
-            text = "I reached them",
+            text = stringResource(R.string.call_outcome_reached),
             onClick = onReachedThem,
         )
         Spacer(Modifier.height(12.dp))
         SignalPrimaryButton(
-            text = "They didn’t answer",
+            text = stringResource(R.string.call_outcome_no_answer),
             onClick = onDidNotAnswer,
         )
         Spacer(Modifier.height(16.dp))
         Text(
-            text = "If you’re not sure, choose “They didn’t answer” — " +
-                "we’ll still celebrate that you tried.",
+            text = stringResource(R.string.call_outcome_hint),
             style = MaterialTheme.typography.bodyMedium,
             color = ClearSignalColors.OnDarkMuted,
             modifier = Modifier.fillMaxWidth(),
@@ -96,18 +95,21 @@ fun ReachedPraiseRoute(onDone: () -> Unit) {
     ) {
         Spacer(Modifier.height(48.dp))
         Text(
-            text = ReflectionCopy.REACHED_TITLE,
+            text = stringResource(R.string.reflection_reached_title),
             style = MaterialTheme.typography.headlineLarge,
             color = ClearSignalColors.OnDark,
         )
         Spacer(Modifier.height(16.dp))
         Text(
-            text = ReflectionCopy.REACHED_BODY,
+            text = stringResource(R.string.reflection_reached_body),
             style = MaterialTheme.typography.bodyLarge,
             color = ClearSignalColors.OnDarkMuted,
         )
         Spacer(Modifier.weight(1f))
-        SignalPrimaryButton(text = "Back to Home", onClick = onDone)
+        SignalPrimaryButton(
+            text = stringResource(R.string.call_outcome_back_home),
+            onClick = onDone,
+        )
         Spacer(Modifier.height(24.dp))
     }
 }

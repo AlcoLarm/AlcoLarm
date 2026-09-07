@@ -4,7 +4,13 @@ Android recovery-support app to help avoid alcohol relapse.
 
 **Stack:** Kotlin · Jetpack Compose · Hilt · multi-module Gradle (Kotlin DSL)  
 **Design:** Quiet Companion (cream/sage) + large soft pause banners + warm amber dial  
-**Version:** `0.5.6-mvp` (versionCode 14)
+**Version:** `0.6.0-mvp` (versionCode 15)
+
+## v0.6.0 — Localization, disclaimer, Buy Me a Coffee
+
+- **Locales:** English (default), Dutch (`values-nl`), French (`values-fr`) via system locale
+- **Disclaimer:** first-launch accept gate + Settings → About / Disclaimer; stored as `disclaimer_accepted`
+- **Buy Me a Coffee:** subtle link on the alert screen from the **5th** warning show onward → https://buymeacoffee.com/AlcoLert
 
 ## MVP flow
 

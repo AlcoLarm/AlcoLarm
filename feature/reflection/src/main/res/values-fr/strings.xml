@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="reflection_screen_title">Un moment pour réfléchir</string>
+    <string name="reflection_affirmation_header">Vous avez tendu la main</string>
+    <string name="reflection_question_turn_around">À quoi ressemblera votre vie si vous faites demi-tour maintenant ?</string>
+    <string name="reflection_question_drink_again">À quoi ressemblera votre vie si vous recommencez à boire ?</string>
+    <string name="reflection_turn_around_placeholder">Écrivez quelques mots sincères — le matin, les personnes, comment vous voulez vous sentir…</string>
+    <string name="reflection_drink_again_placeholder">Soyez honnête avec vous-même — ce qui tend à suivre si vous buvez à nouveau…</string>
+    <string name="reflection_closing_title">Vous l’avez écrit</string>
+    <string name="reflection_closing_body">Le formuler avec vos propres mots compte. Gardez ce que vous venez d’écrire — c’est un rappel clair de la vie que vous choisissez. Vous faites le travail.</string>
+    <string name="reflection_affirmation_title">Vous avez bien fait</string>
+    <string name="reflection_affirmation_body">Tendre la main était courageux — même s’ils n’ont pas décroché. Ne vous inquiétez pas qu’ils n’étaient pas disponibles maintenant. Vous avez pris la bonne décision en vous arrêtant et en essayant. Prenons quelques instants calmes pour vous ancrer.</string>
+    <string name="reflection_reached_title">Vous les avez joints</string>
+    <string name="reflection_reached_body">C’est exactement ce dont ce moment avait besoin. Respirez — vous n’êtes pas seul(e). Rentrez quand vous êtes prêt(e).</string>
+    <string name="reflection_mandatory_hint">Prenez votre temps — Continuez quand vous avez écrit quelque chose.</string>
+    <string name="reflection_im_ready">Je suis prêt(e)</string>
+    <string name="reflection_continue">Continuer</string>
+    <string name="reflection_not_now">Pas maintenant</string>
+    <string name="reflection_cd_loved_ones_photo">Photo de proches</string>
+    <string name="call_outcome_title">Comment ça s’est passé ?</string>
+    <string name="call_outcome_body">Vous avez ouvert le composeur pour %1$s. Dites-nous ce qui s’est passé — nous vous rejoignons là où vous en êtes.</string>
+    <string name="call_outcome_them">eux</string>
+    <string name="call_outcome_reached">Je les ai joints</string>
+    <string name="call_outcome_no_answer">Ils n’ont pas répondu</string>
+    <string name="call_outcome_hint">Si vous n’êtes pas sûr(e), choisissez « Ils n’ont pas répondu » — nous célébrerons quand même que vous ayez essayé.</string>
+    <string name="call_outcome_back_home">Retour à l’accueil</string>
+</resources>

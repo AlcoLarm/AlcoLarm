@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="emergency_title">Who can you call?</string>
+    <string name="emergency_subtitle">One trusted person. On an alert, Call places a direct call — nothing else is sent automatically.</string>
+    <string name="emergency_name">Name</string>
+    <string name="emergency_phone">Phone number</string>
+    <string name="emergency_test_dial">Test dial (opens phone app)</string>
+    <string name="emergency_finish">Finish setup</string>
+    <string name="action_continue">Continue</string>
+    <string name="action_save">Save</string>
+</resources>

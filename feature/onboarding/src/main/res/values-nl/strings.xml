@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="onboarding_title">Wat wil je beschermen?</string>
+    <string name="onboarding_subtitle">Kies wat het belangrijkst is. Deze herinneringen verschijnen wanneer je ze nodig hebt.</string>
+    <string name="onboarding_health_notes_title">Gezondheidsnotities (optioneel)</string>
+    <string name="onboarding_health_notes_hint">bijv. slaap, energie, advies van de dokter</string>
+    <string name="onboarding_family_notes_title">Notities over dierbaren (optioneel)</string>
+    <string name="onboarding_family_notes_hint">Een korte zin die je gegrond houdt</string>
+    <string name="onboarding_add_photo">Foto toevoegen (optioneel)</string>
+    <string name="onboarding_add_another_photo">Nog een foto toevoegen (%1$d)</string>
+    <string name="onboarding_photo_saved">Foto bewaard · tik om te verwijderen</string>
+    <string name="onboarding_remove_last_photo">Laatste foto verwijderen</string>
+    <string name="action_continue">Doorgaan</string>
+    <string name="action_save">Opslaan</string>
+</resources>

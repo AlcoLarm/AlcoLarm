@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="quit_reason_health">Health</string>
+    <string name="quit_reason_family">Loved ones</string>
+    <string name="quit_reason_money">Money</string>
+    <string name="quit_reason_work">Work</string>
+    <string name="quit_reason_self_respect">Self-respect</string>
+    <string name="quit_reason_other">Something else</string>
+
+    <string name="risk_place_bar">Bar</string>
+    <string name="risk_place_liquor_store">Liquor store</string>
+    <string name="risk_place_supermarket">Supermarket</string>
+    <string name="risk_place_party">Party / gathering</string>
+    <string name="risk_place_home_alone">Home alone</string>
+    <string name="risk_place_other">Other</string>
+</resources>

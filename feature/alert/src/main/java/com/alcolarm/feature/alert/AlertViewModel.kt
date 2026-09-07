@@ -10,12 +10,13 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import java.io.File
 import javax.inject.Inject
 
 @HiltViewModel
 class AlertViewModel @Inject constructor(
-    repository: UserPreferencesRepository,
+    private val repository: UserPreferencesRepository,
     familyPhotoStore: FamilyPhotoStore,
     private val callStyleAlert: CallStyleAlertController,
     private val dialReturnTracker: DialReturnTracker,
@@ -37,6 +38,20 @@ class AlertViewModel @Inject constructor(
             initialValue = emptyList(),
         )
 
+    /** Alert/warning show count after this visit is recorded (1-based for UI threshold). */
+    val alertWarningCount: StateFlow<Int> = repository.alertWarningCount.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = 0,
+    )
+
+    /** Increment once per alert screen show (real or Simulate). */
+    fun recordAlertShown() {
+        viewModelScope.launch {
+            repository.incrementAlertWarningCount()
+        }
+    }
+
     fun startCallStyleAlert() {
         val contact = profile.value.emergencyContact
         val name = contact.name.trim().takeIf { it.isNotEmpty() }
@@ -57,5 +72,9 @@ class AlertViewModel @Inject constructor(
     override fun onCleared() {
         callStyleAlert.stop()
         super.onCleared()
+    }
+
+    companion object {
+        const val BMC_SHOW_FROM_COUNT = 5
     }
 }

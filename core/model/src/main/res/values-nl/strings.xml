@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="quit_reason_health">Gezondheid</string>
+    <string name="quit_reason_family">Dierbaren</string>
+    <string name="quit_reason_money">Geld</string>
+    <string name="quit_reason_work">Werk</string>
+    <string name="quit_reason_self_respect">Zelfrespect</string>
+    <string name="quit_reason_other">Iets anders</string>
+
+    <string name="risk_place_bar">Café / bar</string>
+    <string name="risk_place_liquor_store">Slijterij</string>
+    <string name="risk_place_supermarket">Supermarkt</string>
+    <string name="risk_place_party">Feest / bijeenkomst</string>
+    <string name="risk_place_home_alone">Alleen thuis</string>
+    <string name="risk_place_other">Anders</string>
+</resources>

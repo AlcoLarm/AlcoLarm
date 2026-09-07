@@ -11,7 +11,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.alcolarm.app.R
 import com.alcolarm.core.designsystem.theme.ClearSignalColors
 
 @Composable
@@ -24,13 +26,13 @@ fun SplashScreen() {
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
-                text = "AlcoLarm",
+                text = stringResource(R.string.app_name),
                 style = MaterialTheme.typography.displayLarge,
                 color = ClearSignalColors.SoftBlue,
             )
             Spacer(Modifier.height(12.dp))
             Text(
-                text = "A quiet companion when it matters.",
+                text = stringResource(R.string.splash_tagline),
                 style = MaterialTheme.typography.bodyLarge,
                 color = ClearSignalColors.OnDarkMuted,
             )

@@ -36,6 +36,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -48,7 +49,6 @@ import com.alcolarm.core.designsystem.component.SignalPrimaryButton
 import com.alcolarm.core.designsystem.component.SignalSecondaryButton
 import com.alcolarm.core.designsystem.theme.ClearSignalColors
 import com.alcolarm.core.model.UserProfile
-import com.alcolarm.core.model.friendly
 
 @Composable
 fun HomeRoute(
@@ -218,8 +218,8 @@ fun HomeScreen(
     ) {
         if (monitoring.uiState == MonitoringUiState.NEAR_RISK) {
             PauseBanner(
-                title = "PAUSE",
-                subtitle = "Nearby risk — tap to breathe & reflect",
+                title = stringResource(R.string.home_pause_title),
+                subtitle = stringResource(R.string.home_pause_subtitle),
                 onClick = onPauseReflect,
                 modifier = Modifier.statusBarsPadding(),
             )
@@ -236,7 +236,7 @@ fun HomeScreen(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = "You’re set up",
+                    text = stringResource(R.string.home_title),
                     style = MaterialTheme.typography.headlineLarge,
                     color = ClearSignalColors.OnDark,
                     modifier = Modifier.weight(1f),
@@ -244,14 +244,14 @@ fun HomeScreen(
                 IconButton(onClick = onOpenSettings) {
                     Icon(
                         imageVector = Icons.Filled.Settings,
-                        contentDescription = "Settings",
+                        contentDescription = stringResource(R.string.home_cd_settings),
                         tint = ClearSignalColors.OnDark,
                     )
                 }
             }
             Spacer(Modifier.height(8.dp))
             Text(
-                text = "Watching nearby risk places via open map data. We don’t keep a location history.",
+                text = stringResource(R.string.home_subtitle),
                 style = MaterialTheme.typography.bodyLarge,
                 color = ClearSignalColors.OnDarkMuted,
             )
@@ -262,13 +262,13 @@ fun HomeScreen(
             if (!monitoring.permissionGranted) {
                 Spacer(Modifier.height(16.dp))
                 Text(
-                    text = "AlcoLarm uses your location only to warn you near places you marked as risky — we don’t keep a location history.",
+                    text = stringResource(R.string.home_location_privacy),
                     style = MaterialTheme.typography.bodyMedium,
                     color = ClearSignalColors.OnDarkMuted,
                 )
                 Spacer(Modifier.height(12.dp))
                 SignalPrimaryButton(
-                    text = "Allow location",
+                    text = stringResource(R.string.home_allow_location),
                     onClick = onRequestLocationPermission,
                 )
             }
@@ -276,14 +276,13 @@ fun HomeScreen(
             if (showBackgroundRationale || monitoring.needsBackgroundLocation) {
                 Spacer(Modifier.height(16.dp))
                 Text(
-                    text = "To keep alerts working when the app is closed, allow location “all the time” in system settings. " +
-                        "AlcoLarm shows a simple “Location on” notice while watching — nothing about alcohol or recovery.",
+                    text = stringResource(R.string.home_background_rationale),
                     style = MaterialTheme.typography.bodyMedium,
                     color = ClearSignalColors.OnDarkMuted,
                 )
                 Spacer(Modifier.height(12.dp))
                 SignalPrimaryButton(
-                    text = "Allow background location",
+                    text = stringResource(R.string.home_allow_background_location),
                     onClick = onRequestBackgroundLocation,
                 )
             }
@@ -291,59 +290,56 @@ fun HomeScreen(
             if (!notificationsGranted && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 Spacer(Modifier.height(16.dp))
                 Text(
-                    text = "Allow notifications so a discreet call-style alert can reach you when needed.",
+                    text = stringResource(R.string.home_notifications_rationale),
                     style = MaterialTheme.typography.bodyMedium,
                     color = ClearSignalColors.OnDarkMuted,
                 )
                 Spacer(Modifier.height(12.dp))
                 SignalPrimaryButton(
-                    text = "Allow notifications",
+                    text = stringResource(R.string.home_allow_notifications),
                     onClick = onRequestNotificationPermission,
                 )
             }
 
             Spacer(Modifier.height(28.dp))
 
+            val context = LocalContext.current
+            val noneSelected = stringResource(R.string.home_none_selected)
+            val notSet = stringResource(R.string.home_not_set)
+            val reasonLabels = profile.quitReasons.map { context.getString(it.labelRes) }
+            val riskLabels = profile.riskPlaces.map { context.getString(it.labelRes) }
             SummaryBlock(
-                title = "Your reasons",
-                body = if (profile.quitReasons.isEmpty()) {
-                    "None selected yet"
-                } else {
-                    profile.quitReasons.joinToString(", ") { it.friendly() }
-                },
+                title = stringResource(R.string.home_your_reasons),
+                body = if (reasonLabels.isEmpty()) noneSelected else reasonLabels.joinToString(", "),
             )
             Spacer(Modifier.height(16.dp))
             SummaryBlock(
-                title = "Risk places",
-                body = if (profile.riskPlaces.isEmpty()) {
-                    "None selected yet"
-                } else {
-                    profile.riskPlaces.joinToString(", ") { it.friendly() }
-                },
+                title = stringResource(R.string.home_risk_places),
+                body = if (riskLabels.isEmpty()) noneSelected else riskLabels.joinToString(", "),
             )
             Spacer(Modifier.height(16.dp))
             SummaryBlock(
-                title = "Emergency contact",
+                title = stringResource(R.string.home_emergency_contact),
                 body = listOf(profile.emergencyContact.name, profile.emergencyContact.phoneNumber)
                     .filter { it.isNotBlank() }
                     .joinToString(" · ")
-                    .ifBlank { "Not set" },
+                    .ifBlank { notSet },
             )
 
             Spacer(Modifier.height(28.dp))
             SignalSecondaryButton(
-                text = "Settings",
+                text = stringResource(R.string.home_settings),
                 onClick = onOpenSettings,
             )
             Spacer(Modifier.height(16.dp))
             Text(
-                text = "Try the call-style alert anytime — useful for practice and testing.",
+                text = stringResource(R.string.home_simulate_hint),
                 style = MaterialTheme.typography.bodyMedium,
                 color = ClearSignalColors.OnDarkMuted,
             )
             Spacer(Modifier.height(12.dp))
             SignalPrimaryButton(
-                text = "Simulate risk alert",
+                text = stringResource(R.string.home_simulate_button),
                 onClick = onSimulateAlert,
             )
             Spacer(Modifier.height(24.dp))
@@ -367,26 +363,26 @@ private fun MonitoringCard(monitoring: HomeMonitoringUi) {
             .padding(16.dp),
     ) {
         Text(
-            text = "Live risk watch",
+            text = stringResource(R.string.home_live_risk_watch),
             style = MaterialTheme.typography.titleMedium,
             color = ClearSignalColors.SoftBlue,
         )
         Spacer(Modifier.height(6.dp))
         Text(
-            text = monitoring.statusMessage,
+            text = stringResource(monitoring.statusKey.labelRes),
             style = MaterialTheme.typography.bodyLarge,
             color = accent,
         )
         Spacer(Modifier.height(4.dp))
         Text(
             text = when {
-                !monitoring.permissionGranted -> "Location: off"
+                !monitoring.permissionGranted -> stringResource(R.string.home_location_off)
                 monitoring.watchMode == WatchModeUi.BACKGROUND ->
-                    "Monitoring: on (background)"
+                    stringResource(R.string.home_monitoring_background)
                 monitoring.watchMode == WatchModeUi.FOREGROUND_ONLY ||
                     monitoring.monitoringActive ->
-                    "Monitoring: on (foreground)"
-                else -> "Monitoring: paused"
+                    stringResource(R.string.home_monitoring_foreground)
+                else -> stringResource(R.string.home_monitoring_paused)
             },
             style = MaterialTheme.typography.bodyMedium,
             color = ClearSignalColors.OnDarkMuted,
@@ -396,7 +392,7 @@ private fun MonitoringCard(monitoring: HomeMonitoringUi) {
         if (match != null && risk != null) {
             Spacer(Modifier.height(4.dp))
             Text(
-                text = "${risk.friendly()} · $match",
+                text = "${LocalContext.current.getString(risk.labelRes)} · $match",
                 style = MaterialTheme.typography.bodyMedium,
                 color = ClearSignalColors.OnDark,
             )

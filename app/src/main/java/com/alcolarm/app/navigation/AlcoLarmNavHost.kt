@@ -14,6 +14,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.alcolarm.app.ui.DisclaimerRoute
 import com.alcolarm.app.ui.SettingsRoute
 import com.alcolarm.app.ui.SplashScreen
 import com.alcolarm.feature.alert.AlertRoute
@@ -117,15 +118,36 @@ fun AlcoLarmNavHost(
             SplashScreen()
             LaunchedEffect(Unit) {
                 coroutineScope {
-                    val completeDeferred = async { startViewModel.awaitOnboardingComplete() }
+                    val routingDeferred = async { startViewModel.awaitStartRouting() }
                     delay(700)
-                    val complete = completeDeferred.await()
-                    val dest = if (complete) Routes.Home else Routes.Onboarding
+                    val routing = routingDeferred.await()
+                    val dest = when {
+                        !routing.disclaimerAccepted -> Routes.Disclaimer
+                        routing.onboardingComplete -> Routes.Home
+                        else -> Routes.Onboarding
+                    }
                     navController.navigate(dest) {
                         popUpTo(Routes.Splash) { inclusive = true }
                     }
                 }
             }
+        }
+        composable(Routes.Disclaimer) {
+            DisclaimerRoute(
+                requireAccept = true,
+                onAcceptedOrClosed = {
+                    val dest = if (profile.onboardingComplete) Routes.Home else Routes.Onboarding
+                    navController.navigate(dest) {
+                        popUpTo(Routes.Disclaimer) { inclusive = true }
+                    }
+                },
+            )
+        }
+        composable(Routes.DisclaimerView) {
+            DisclaimerRoute(
+                requireAccept = false,
+                onAcceptedOrClosed = { navController.popBackStack() },
+            )
         }
         composable(Routes.Onboarding) {
             OnboardingRoute(
@@ -175,6 +197,11 @@ fun AlcoLarmNavHost(
                 },
                 onEditEmergency = {
                     navController.navigate(Routes.EditEmergency)
+                },
+                onOpenDisclaimer = {
+                    navController.navigate(Routes.DisclaimerView) {
+                        launchSingleTop = true
+                    }
                 },
             )
         }

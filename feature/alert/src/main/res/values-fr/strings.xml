@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="alert_pause_title">PAUSE</string>
+    <string name="alert_pause_subtitle">Appuyez pour couper le son et réfléchir — vous y arrivez</string>
+    <string name="alert_im_ok_close">Ça va — fermer</string>
+    <string name="alert_dial_fallback">Appeler</string>
+    <string name="alert_incoming_call">Appel entrant</string>
+    <string name="alert_remember_why">Souvenez-vous pourquoi vous avez commencé</string>
+    <string name="alert_reasons_placeholder">Vos raisons apparaîtront ici après la configuration.</string>
+    <string name="alert_cd_loved_ones_photo">Photo de proches</string>
+    <string name="alert_toast_no_contact">Ajoutez un contact d’urgence dans Paramètres</string>
+    <string name="alert_toast_call_denied">Permission téléphone refusée — ouverture du composeur</string>
+    <string name="alert_channel_name">Appels entrants</string>
+    <string name="alert_channel_desc">Alertes style appel</string>
+    <string name="alert_mobile">Mobile</string>
+    <string name="bmc_support_link">Aidez à garder l’app sans pub et gratuite</string>
+</resources>

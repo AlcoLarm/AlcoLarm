@@ -35,10 +35,10 @@ class RiskWatchEngine @Inject constructor(
     private val _monitoring = MutableStateFlow(
         HomeMonitoringUi(
             permissionGranted = locationTracker.hasLocationPermission(),
-            statusMessage = if (locationTracker.hasLocationPermission()) {
-                "Starting…"
+            statusKey = if (locationTracker.hasLocationPermission()) {
+                MonitoringStatusKey.STARTING
             } else {
-                "Permission needed"
+                MonitoringStatusKey.PERMISSION_NEEDED
             },
             uiState = if (locationTracker.hasLocationPermission()) {
                 MonitoringUiState.WATCHING
@@ -74,7 +74,7 @@ class RiskWatchEngine @Inject constructor(
                     permissionGranted = false,
                     monitoringActive = false,
                     uiState = MonitoringUiState.PERMISSION_NEEDED,
-                    statusMessage = "Permission needed",
+                    statusKey = MonitoringStatusKey.PERMISSION_NEEDED,
                 )
             }
             return@withLock
@@ -128,7 +128,7 @@ class RiskWatchEngine @Inject constructor(
         _monitoring.update {
             it.copy(
                 uiState = MonitoringUiState.WATCHING,
-                statusMessage = defaultWatchMessage(),
+                statusKey = MonitoringStatusKey.WATCHING,
                 lastMatchedPlaceName = null,
                 lastMatchedRisk = null,
             )
@@ -143,7 +143,7 @@ class RiskWatchEngine @Inject constructor(
                     permissionGranted = false,
                     monitoringActive = false,
                     uiState = MonitoringUiState.PERMISSION_NEEDED,
-                    statusMessage = "Permission needed",
+                    statusKey = MonitoringStatusKey.PERMISSION_NEEDED,
                 )
             }
         }
@@ -196,7 +196,7 @@ class RiskWatchEngine @Inject constructor(
                 it.copy(
                     permissionGranted = false,
                     uiState = MonitoringUiState.PERMISSION_NEEDED,
-                    statusMessage = "Permission needed",
+                    statusKey = MonitoringStatusKey.PERMISSION_NEEDED,
                 )
             }
             return
@@ -210,7 +210,7 @@ class RiskWatchEngine @Inject constructor(
             _monitoring.update {
                 it.copy(
                     uiState = MonitoringUiState.NO_DETECTABLE_RISKS,
-                    statusMessage = "Select bar / liquor store / supermarket / party to watch",
+                    statusKey = MonitoringStatusKey.NO_DETECTABLE_RISKS,
                 )
             }
             return
@@ -221,7 +221,7 @@ class RiskWatchEngine @Inject constructor(
             _monitoring.update {
                 it.copy(
                     uiState = MonitoringUiState.WATCHING,
-                    statusMessage = "Getting location…",
+                    statusKey = MonitoringStatusKey.GETTING_LOCATION,
                 )
             }
             return
@@ -277,7 +277,7 @@ class RiskWatchEngine @Inject constructor(
                 permissionGranted = true,
                 monitoringActive = true,
                 uiState = MonitoringUiState.NEAR_RISK,
-                statusMessage = "Near — confirming you’ve stopped…",
+                statusKey = MonitoringStatusKey.NEAR_CONFIRMING,
                 lastMatchedPlaceName = match.placeName,
                 lastMatchedRisk = match.riskPlaceId,
             )
@@ -324,7 +324,7 @@ class RiskWatchEngine @Inject constructor(
                     permissionGranted = true,
                     monitoringActive = true,
                     uiState = MonitoringUiState.CHECK_ERROR,
-                    statusMessage = "Check failed — will retry",
+                    statusKey = MonitoringStatusKey.CHECK_FAILED,
                 )
             }
         } else {
@@ -333,7 +333,7 @@ class RiskWatchEngine @Inject constructor(
                     permissionGranted = true,
                     monitoringActive = true,
                     uiState = MonitoringUiState.WATCHING,
-                    statusMessage = defaultWatchMessage(),
+                    statusKey = MonitoringStatusKey.WATCHING,
                     lastMatchedPlaceName = null,
                     lastMatchedRisk = null,
                 )
@@ -341,8 +341,6 @@ class RiskWatchEngine @Inject constructor(
         }
     }
 
-    private fun defaultWatchMessage(): String =
-        "Watching nearby risk places via open map data…"
 
     companion object {
         private const val TAG = "AlcoLarm.WatchEngine"
