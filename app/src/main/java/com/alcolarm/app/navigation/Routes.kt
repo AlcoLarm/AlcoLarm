@@ -2,6 +2,8 @@ package com.alcolarm.app.navigation
 
 object Routes {
     const val Splash = "splash"
+    const val Disclaimer = "disclaimer"
+    const val DisclaimerView = "disclaimer_view"
     const val Onboarding = "onboarding"
     const val RiskPlaces = "risk_places"
     const val Emergency = "emergency"

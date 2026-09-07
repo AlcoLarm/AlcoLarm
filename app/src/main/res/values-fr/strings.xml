@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">AlcoLarm</string>
+    <string name="splash_tagline">Un compagnon discret quand cela compte.</string>
+
+    <string name="action_continue">Continuer</string>
+    <string name="action_save">Enregistrer</string>
+    <string name="action_back">Retour</string>
+    <string name="none_selected_yet">Aucune sélection pour l’instant</string>
+    <string name="not_set">Non défini</string>
+    <string name="cd_settings">Paramètres</string>
+    <string name="cd_loved_ones_photo">Photo de proches</string>
+
+    <string name="disclaimer_title">Avertissement important</string>
+    <string name="disclaimer_body">AlcoLarm (également appelé AlcoLert) n’est qu’un outil d’aide pour vous soutenir dans l’arrêt. Les développeurs ne sont pas responsables de vos choix, de vos actes ni de leurs conséquences. Vous restez entièrement responsable de vos propres décisions et de votre sécurité.</string>
+    <string name="disclaimer_accept">Je comprends — continuer</string>
+    <string name="disclaimer_close">Fermer</string>
+    <string name="settings_about_disclaimer">À propos / Avertissement</string>
+    <string name="settings_about_subtitle">Avis sur l’outil d’aide et la responsabilité</string>
+
+    <string name="settings_title">Paramètres</string>
+    <string name="settings_subtitle">Modifiez à tout moment — les changements sont enregistrés sur cet appareil.</string>
+    <string name="settings_your_reasons">Vos raisons</string>
+    <string name="settings_risk_places">Lieux à risque</string>
+    <string name="settings_emergency_contact">Contact d’urgence</string>
+    <string name="settings_background_monitoring">Surveillance en arrière-plan</string>
+    <string name="settings_background_monitoring_desc">Continuer à surveiller les lieux à risque à proximité lorsque l’app est fermée (nécessite la localisation « tout le temps »).</string>
+</resources>

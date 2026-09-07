@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">AlcoLarm</string>
+    <string name="splash_tagline">Een stille metgezel wanneer het ertoe doet.</string>
+
+    <string name="action_continue">Doorgaan</string>
+    <string name="action_save">Opslaan</string>
+    <string name="action_back">Terug</string>
+    <string name="none_selected_yet">Nog niets geselecteerd</string>
+    <string name="not_set">Niet ingesteld</string>
+    <string name="cd_settings">Instellingen</string>
+    <string name="cd_loved_ones_photo">Foto van dierbaren</string>
+
+    <string name="disclaimer_title">Belangrijke disclaimer</string>
+    <string name="disclaimer_body">AlcoLarm (ook bekend als AlcoLert) is enkel een hulpmiddel om je te helpen stoppen. De ontwikkelaars zijn niet verantwoordelijk voor jouw keuzes, daden of gevolgen. Jij blijft volledig verantwoordelijk voor je eigen beslissingen en veiligheid.</string>
+    <string name="disclaimer_accept">Ik begrijp het — doorgaan</string>
+    <string name="disclaimer_close">Sluiten</string>
+    <string name="settings_about_disclaimer">Over / Disclaimer</string>
+    <string name="settings_about_subtitle">Melding over hulpmiddel en verantwoordelijkheid</string>
+
+    <string name="settings_title">Instellingen</string>
+    <string name="settings_subtitle">Pas wanneer je wilt aan — wijzigingen worden op dit toestel bewaard.</string>
+    <string name="settings_your_reasons">Jouw redenen</string>
+    <string name="settings_risk_places">Risicoplaatsen</string>
+    <string name="settings_emergency_contact">Noodcontact</string>
+    <string name="settings_background_monitoring">Achtergrondmonitoring</string>
+    <string name="settings_background_monitoring_desc">Blijf risicoplaatsen in de buurt volgen als de app gesloten is (vereist locatie “altijd”).</string>
+</resources>

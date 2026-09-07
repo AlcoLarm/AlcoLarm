@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="reflection_screen_title">A moment to reflect</string>
+    <string name="reflection_affirmation_header">You reached out</string>
+    <string name="reflection_question_turn_around">What will your life look like if you turn around now?</string>
+    <string name="reflection_question_drink_again">What will your life look like if you start drinking again?</string>
+    <string name="reflection_turn_around_placeholder">Write a few honest words — the morning, the people, how you want to feel…</string>
+    <string name="reflection_drink_again_placeholder">Be honest with yourself — what tends to follow if you drink again…</string>
+    <string name="reflection_closing_title">You wrote it down</string>
+    <string name="reflection_closing_body">Putting it into your own words matters. Hold onto what you just wrote — it’s a clear reminder of the life you’re choosing. You’re doing the work.</string>
+    <string name="reflection_affirmation_title">You did the right thing</string>
+    <string name="reflection_affirmation_body">Reaching out was brave — even if they couldn’t pick up. Don’t worry that they weren’t available right now. You made the right decision stopping and trying. Let’s take a few quiet moments to ground yourself.</string>
+    <string name="reflection_reached_title">You reached them</string>
+    <string name="reflection_reached_body">That’s exactly what this moment called for. Take a breath — you’re not alone in this. Head home when you’re ready.</string>
+    <string name="reflection_mandatory_hint">Take your time — Continue when you’ve written something.</string>
+    <string name="reflection_im_ready">I’m ready</string>
+    <string name="reflection_continue">Continue</string>
+    <string name="reflection_not_now">Not now</string>
+    <string name="reflection_cd_loved_ones_photo">Photo of loved ones</string>
+    <string name="call_outcome_title">How did it go?</string>
+    <string name="call_outcome_body">You opened the dialer for %1$s. Tell us what happened — we’ll meet you where you are.</string>
+    <string name="call_outcome_them">them</string>
+    <string name="call_outcome_reached">I reached them</string>
+    <string name="call_outcome_no_answer">They didn’t answer</string>
+    <string name="call_outcome_hint">If you’re not sure, choose “They didn’t answer” — we’ll still celebrate that you tried.</string>
+    <string name="call_outcome_back_home">Back to Home</string>
+</resources>

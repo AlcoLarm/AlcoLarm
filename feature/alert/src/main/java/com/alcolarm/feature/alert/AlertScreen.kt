@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -26,6 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,7 +38,9 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -50,7 +54,6 @@ import com.alcolarm.core.designsystem.component.DialButton
 import com.alcolarm.core.designsystem.component.PauseBanner
 import com.alcolarm.core.designsystem.theme.ClearSignalColors
 import com.alcolarm.core.model.UserProfile
-import com.alcolarm.core.model.friendly
 import java.io.File
 
 @Composable
@@ -62,8 +65,13 @@ fun AlertRoute(
 ) {
     val profile by viewModel.profile.collectAsStateWithLifecycle()
     val familyPhotos by viewModel.familyPhotoFiles.collectAsStateWithLifecycle()
+    val alertWarningCount by viewModel.alertWarningCount.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
+
+    LaunchedEffect(Unit) {
+        viewModel.recordAlertShown()
+    }
 
     // Phone queued while waiting for CALL_PHONE runtime permission result.
     var pendingCallPhone by remember { mutableStateOf<String?>(null) }
@@ -84,7 +92,7 @@ fun AlertRoute(
         } else {
             Toast.makeText(
                 context,
-                "Phone permission denied — opening dialer instead",
+                context.getString(R.string.alert_toast_call_denied),
                 Toast.LENGTH_SHORT,
             ).show()
             launchEmergencyDialFallback(
@@ -119,6 +127,7 @@ fun AlertRoute(
     AlertScreen(
         profile = profile,
         familyPhotoFiles = familyPhotos,
+        showBuyMeCoffee = alertWarningCount >= AlertViewModel.BMC_SHOW_FROM_COUNT,
         onPause = {
             viewModel.stopCallStyleAlert()
             onPauseReflect()
@@ -128,7 +137,7 @@ fun AlertRoute(
             if (phone.isBlank()) {
                 Toast.makeText(
                     context,
-                    "Add emergency contact in Settings",
+                    context.getString(R.string.alert_toast_no_contact),
                     Toast.LENGTH_LONG,
                 ).show()
             } else {
@@ -210,6 +219,7 @@ private fun launchEmergencyDialFallback(
 fun AlertScreen(
     profile: UserProfile,
     familyPhotoFiles: List<File>,
+    showBuyMeCoffee: Boolean,
     onPause: () -> Unit,
     onDial: () -> Unit,
     onDismiss: () -> Unit,
@@ -218,10 +228,10 @@ fun AlertScreen(
     val dialLabel = profile.emergencyContact.name
         .trim()
         .substringBefore(" ")
-        .ifBlank { "Dial" }
+        .ifBlank { stringResource(R.string.alert_dial_fallback) }
     val callLabel = profile.emergencyContact.name
         .trim()
-        .ifBlank { "Incoming call" }
+        .ifBlank { stringResource(R.string.alert_incoming_call) }
 
     Column(
         modifier = Modifier
@@ -240,8 +250,8 @@ fun AlertScreen(
         )
 
         PauseBanner(
-            title = "PAUSE",
-            subtitle = "Tap to silence & reflect — you’ve got this",
+            title = stringResource(R.string.alert_pause_title),
+            subtitle = stringResource(R.string.alert_pause_subtitle),
             onClick = onPause,
         )
 
@@ -261,7 +271,7 @@ fun AlertScreen(
                             .data(familyPhotoFiles[page])
                             .crossfade(true)
                             .build(),
-                        contentDescription = "Photo of loved ones",
+                        contentDescription = stringResource(R.string.alert_cd_loved_ones_photo),
                         contentScale = ContentScale.Crop,
                         modifier = Modifier.fillMaxSize(),
                     )
@@ -295,7 +305,7 @@ fun AlertScreen(
 
                 TextButton(onClick = onDismiss) {
                     Text(
-                        text = "I’m OK — close",
+                        text = stringResource(R.string.alert_im_ok_close),
                         style = MaterialTheme.typography.labelLarge,
                         color = ClearSignalColors.OnDarkMuted,
                     )
@@ -305,6 +315,27 @@ fun AlertScreen(
                     label = dialLabel,
                     onClick = onDial,
                 )
+                if (showBuyMeCoffee) {
+                    Spacer(Modifier.height(10.dp))
+                    val bmcUrl = stringResource(R.string.bmc_url)
+                    Text(
+                        text = stringResource(R.string.bmc_support_link),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = ClearSignalColors.OnDarkMuted.copy(alpha = 0.75f),
+                        textAlign = TextAlign.Center,
+                        textDecoration = TextDecoration.Underline,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                runCatching {
+                                    context.startActivity(
+                                        Intent(Intent.ACTION_VIEW, Uri.parse(bmcUrl)),
+                                    )
+                                }
+                            }
+                            .padding(vertical = 4.dp),
+                    )
+                }
                 Spacer(Modifier.height(8.dp))
             }
         }
@@ -313,6 +344,7 @@ fun AlertScreen(
 
 @Composable
 private fun NoPhotoHero(profile: UserProfile) {
+    val context = LocalContext.current
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -322,7 +354,7 @@ private fun NoPhotoHero(profile: UserProfile) {
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
-            text = "Remember why you started",
+            text = stringResource(R.string.alert_remember_why),
             style = MaterialTheme.typography.headlineMedium,
             color = ClearSignalColors.OnDark,
             textAlign = TextAlign.Center,
@@ -330,7 +362,7 @@ private fun NoPhotoHero(profile: UserProfile) {
         Spacer(Modifier.height(24.dp))
         if (profile.quitReasons.isEmpty()) {
             Text(
-                text = "Your reasons will show here after onboarding.",
+                text = stringResource(R.string.alert_reasons_placeholder),
                 style = MaterialTheme.typography.bodyLarge,
                 color = ClearSignalColors.OnDarkMuted,
                 textAlign = TextAlign.Center,
@@ -338,7 +370,7 @@ private fun NoPhotoHero(profile: UserProfile) {
         } else {
             profile.quitReasons.forEach { reason ->
                 Text(
-                    text = reason.friendly(),
+                    text = context.getString(reason.labelRes),
                     style = MaterialTheme.typography.headlineSmall,
                     color = ClearSignalColors.OnDark,
                     textAlign = TextAlign.Center,
@@ -370,13 +402,16 @@ private fun NoPhotoHero(profile: UserProfile) {
 
 @Composable
 private fun OverlayReasons(profile: UserProfile) {
+    val context = LocalContext.current
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         if (profile.quitReasons.isNotEmpty()) {
             Text(
-                text = profile.quitReasons.joinToString(" · ") { it.friendly() },
+                text = profile.quitReasons.joinToString(" · ") {
+                    context.getString(it.labelRes)
+                },
                 style = MaterialTheme.typography.titleMedium,
                 color = ClearSignalColors.OnDark,
                 textAlign = TextAlign.Center,

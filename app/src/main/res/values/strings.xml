@@ -1,4 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">AlcoLarm</string>
+    <string name="splash_tagline">A quiet companion when it matters.</string>
+
+    <string name="action_continue">Continue</string>
+    <string name="action_save">Save</string>
+    <string name="action_back">Back</string>
+    <string name="none_selected_yet">None selected yet</string>
+    <string name="not_set">Not set</string>
+    <string name="cd_settings">Settings</string>
+    <string name="cd_loved_ones_photo">Photo of loved ones</string>
+
+    <!-- Disclaimer -->
+    <string name="disclaimer_title">Important disclaimer</string>
+    <string name="disclaimer_body">AlcoLarm (also known as AlcoLert) is only a support tool to help you stop. The developers are not responsible for your choices, actions, or outcomes. You remain fully responsible for your own decisions and safety.</string>
+    <string name="disclaimer_accept">I understand — continue</string>
+    <string name="disclaimer_close">Close</string>
+    <string name="settings_about_disclaimer">About / Disclaimer</string>
+    <string name="settings_about_subtitle">Support tool notice and responsibility</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_subtitle">Update anytime — changes save to this device.</string>
+    <string name="settings_your_reasons">Your reasons</string>
+    <string name="settings_risk_places">Risk places</string>
+    <string name="settings_emergency_contact">Emergency contact</string>
+    <string name="settings_background_monitoring">Background monitoring</string>
+    <string name="settings_background_monitoring_desc">Keep watching nearby risk places when the app is closed (needs “all the time” location).</string>
 </resources>

@@ -27,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -111,8 +112,8 @@ fun ReflectionScreen(
     ) {
         Text(
             text = when (page) {
-                ReflectionPage.Affirmation -> ReflectionCopy.AFFIRMATION_HEADER
-                else -> ReflectionCopy.SCREEN_TITLE
+                ReflectionPage.Affirmation -> stringResource(R.string.reflection_affirmation_header)
+                else -> stringResource(R.string.reflection_screen_title)
             },
             style = MaterialTheme.typography.labelLarge,
             color = ClearSignalColors.OnDarkMuted,
@@ -132,7 +133,7 @@ fun ReflectionScreen(
                         .data(photoFiles.first())
                         .crossfade(true)
                         .build(),
-                    contentDescription = "Photo of loved ones",
+                    contentDescription = stringResource(R.string.reflection_cd_loved_ones_photo),
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -145,44 +146,44 @@ fun ReflectionScreen(
             when (page) {
                 ReflectionPage.Affirmation -> {
                     Text(
-                        text = ReflectionCopy.AFFIRMATION_TITLE,
+                        text = stringResource(R.string.reflection_affirmation_title),
                         style = MaterialTheme.typography.headlineLarge,
                         color = ClearSignalColors.OnDark,
                     )
                     Spacer(Modifier.height(16.dp))
                     Text(
-                        text = ReflectionCopy.AFFIRMATION_BODY,
+                        text = stringResource(R.string.reflection_affirmation_body),
                         style = MaterialTheme.typography.bodyLarge,
                         color = ClearSignalColors.OnDarkMuted,
                     )
                 }
                 ReflectionPage.TurnAround -> {
                     QuestionPage(
-                        question = ReflectionCopy.QUESTION_TURN_AROUND,
+                        question = stringResource(R.string.reflection_question_turn_around),
                         value = answers.turnAround,
                         onValueChange = onTurnAroundChanged,
-                        placeholder = ReflectionCopy.TURN_AROUND_PLACEHOLDER,
+                        placeholder = stringResource(R.string.reflection_turn_around_placeholder),
                         ready = prefillReady,
                     )
                 }
                 ReflectionPage.DrinkAgain -> {
                     QuestionPage(
-                        question = ReflectionCopy.QUESTION_DRINK_AGAIN,
+                        question = stringResource(R.string.reflection_question_drink_again),
                         value = answers.drinkAgain,
                         onValueChange = onDrinkAgainChanged,
-                        placeholder = ReflectionCopy.DRINK_AGAIN_PLACEHOLDER,
+                        placeholder = stringResource(R.string.reflection_drink_again_placeholder),
                         ready = prefillReady,
                     )
                 }
                 ReflectionPage.Closing -> {
                     Text(
-                        text = ReflectionCopy.CLOSING_TITLE,
+                        text = stringResource(R.string.reflection_closing_title),
                         style = MaterialTheme.typography.headlineLarge,
                         color = ClearSignalColors.OnDark,
                     )
                     Spacer(Modifier.height(16.dp))
                     Text(
-                        text = ReflectionCopy.CLOSING_BODY,
+                        text = stringResource(R.string.reflection_closing_body),
                         style = MaterialTheme.typography.bodyLarge,
                         color = ClearSignalColors.OnDarkMuted,
                     )
@@ -200,9 +201,8 @@ fun ReflectionScreen(
 
         SignalPrimaryButton(
             text = when {
-                isLast -> "I’m ready"
-                page == ReflectionPage.Affirmation -> "Continue"
-                else -> "Continue"
+                isLast -> stringResource(R.string.reflection_im_ready)
+                else -> stringResource(R.string.reflection_continue)
             },
             enabled = canContinue,
             onClick = {
@@ -227,7 +227,7 @@ fun ReflectionScreen(
             Spacer(Modifier.height(8.dp))
             TextButton(onClick = onSkip, modifier = Modifier.fillMaxWidth()) {
                 Text(
-                    text = "Not now",
+                    text = stringResource(R.string.reflection_not_now),
                     style = MaterialTheme.typography.labelLarge,
                     color = ClearSignalColors.OnDarkMuted,
                     textAlign = TextAlign.Center,
@@ -237,7 +237,7 @@ fun ReflectionScreen(
         } else {
             Spacer(Modifier.height(12.dp))
             Text(
-                text = ReflectionCopy.MANDATORY_HINT,
+                text = stringResource(R.string.reflection_mandatory_hint),
                 style = MaterialTheme.typography.bodyMedium,
                 color = ClearSignalColors.OnDarkMuted,
                 textAlign = TextAlign.Center,

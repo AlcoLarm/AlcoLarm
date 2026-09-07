@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="emergency_title">Qui pouvez-vous appeler ?</string>
+    <string name="emergency_subtitle">Une personne de confiance. Lors d’une alerte, Appeler lance un appel direct — rien d’autre n’est envoyé automatiquement.</string>
+    <string name="emergency_name">Nom</string>
+    <string name="emergency_phone">Numéro de téléphone</string>
+    <string name="emergency_test_dial">Tester l’appel (ouvre l’app Téléphone)</string>
+    <string name="emergency_finish">Terminer la configuration</string>
+    <string name="action_continue">Continuer</string>
+    <string name="action_save">Enregistrer</string>
+</resources>

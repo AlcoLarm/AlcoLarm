@@ -23,12 +23,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.alcolarm.app.R
 import com.alcolarm.core.designsystem.theme.ClearSignalColors
 import com.alcolarm.core.model.UserProfile
-import com.alcolarm.core.model.friendly
 
 @Composable
 fun SettingsRoute(
@@ -36,6 +38,7 @@ fun SettingsRoute(
     onEditReasons: () -> Unit,
     onEditRiskPlaces: () -> Unit,
     onEditEmergency: () -> Unit,
+    onOpenDisclaimer: () -> Unit,
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
     val profile by viewModel.profile.collectAsStateWithLifecycle()
@@ -48,6 +51,7 @@ fun SettingsRoute(
         onEditReasons = onEditReasons,
         onEditRiskPlaces = onEditRiskPlaces,
         onEditEmergency = onEditEmergency,
+        onOpenDisclaimer = onOpenDisclaimer,
         onBackgroundWatchChange = viewModel::setBackgroundWatchEnabled,
     )
 }
@@ -60,8 +64,15 @@ fun SettingsScreen(
     onEditReasons: () -> Unit,
     onEditRiskPlaces: () -> Unit,
     onEditEmergency: () -> Unit,
+    onOpenDisclaimer: () -> Unit,
     onBackgroundWatchChange: (Boolean) -> Unit,
 ) {
+    val context = LocalContext.current
+    val noneSelected = stringResource(R.string.none_selected_yet)
+    val notSet = stringResource(R.string.not_set)
+    val reasonLabels = profile.quitReasons.map { context.getString(it.labelRes) }
+    val riskLabels = profile.riskPlaces.map { context.getString(it.labelRes) }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -72,19 +83,19 @@ fun SettingsScreen(
             IconButton(onClick = onBack) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back",
+                    contentDescription = stringResource(R.string.action_back),
                     tint = ClearSignalColors.OnDark,
                 )
             }
             Text(
-                text = "Settings",
+                text = stringResource(R.string.settings_title),
                 style = MaterialTheme.typography.headlineLarge,
                 color = ClearSignalColors.OnDark,
             )
         }
         Spacer(Modifier.height(8.dp))
         Text(
-            text = "Update anytime — changes save to this device.",
+            text = stringResource(R.string.settings_subtitle),
             style = MaterialTheme.typography.bodyLarge,
             color = ClearSignalColors.OnDarkMuted,
             modifier = Modifier.padding(horizontal = 16.dp),
@@ -92,30 +103,27 @@ fun SettingsScreen(
         Spacer(Modifier.height(20.dp))
 
         SettingsRow(
-            title = "Your reasons",
-            subtitle = if (profile.quitReasons.isEmpty()) {
-                "None selected yet"
-            } else {
-                profile.quitReasons.joinToString(", ") { it.friendly() }
-            },
+            title = stringResource(R.string.settings_your_reasons),
+            subtitle = if (reasonLabels.isEmpty()) noneSelected else reasonLabels.joinToString(", "),
             onClick = onEditReasons,
         )
         SettingsRow(
-            title = "Risk places",
-            subtitle = if (profile.riskPlaces.isEmpty()) {
-                "None selected yet"
-            } else {
-                profile.riskPlaces.joinToString(", ") { it.friendly() }
-            },
+            title = stringResource(R.string.settings_risk_places),
+            subtitle = if (riskLabels.isEmpty()) noneSelected else riskLabels.joinToString(", "),
             onClick = onEditRiskPlaces,
         )
         SettingsRow(
-            title = "Emergency contact",
+            title = stringResource(R.string.settings_emergency_contact),
             subtitle = listOf(profile.emergencyContact.name, profile.emergencyContact.phoneNumber)
                 .filter { it.isNotBlank() }
                 .joinToString(" · ")
-                .ifBlank { "Not set" },
+                .ifBlank { notSet },
             onClick = onEditEmergency,
+        )
+        SettingsRow(
+            title = stringResource(R.string.settings_about_disclaimer),
+            subtitle = stringResource(R.string.settings_about_subtitle),
+            onClick = onOpenDisclaimer,
         )
 
         Spacer(Modifier.height(12.dp))
@@ -127,13 +135,13 @@ fun SettingsScreen(
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "Background monitoring",
+                    text = stringResource(R.string.settings_background_monitoring),
                     style = MaterialTheme.typography.titleLarge,
                     color = ClearSignalColors.OnDark,
                 )
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    text = "Keep watching nearby risk places when the app is closed (needs “all the time” location).",
+                    text = stringResource(R.string.settings_background_monitoring_desc),
                     style = MaterialTheme.typography.bodyMedium,
                     color = ClearSignalColors.OnDarkMuted,
                 )

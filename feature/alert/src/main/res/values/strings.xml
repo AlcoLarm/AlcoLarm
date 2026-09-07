@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="alert_pause_title">PAUSE</string>
+    <string name="alert_pause_subtitle">Tap to silence &amp; reflect — you’ve got this</string>
+    <string name="alert_im_ok_close">I’m OK — close</string>
+    <string name="alert_dial_fallback">Dial</string>
+    <string name="alert_incoming_call">Incoming call</string>
+    <string name="alert_remember_why">Remember why you started</string>
+    <string name="alert_reasons_placeholder">Your reasons will show here after onboarding.</string>
+    <string name="alert_cd_loved_ones_photo">Photo of loved ones</string>
+    <string name="alert_toast_no_contact">Add emergency contact in Settings</string>
+    <string name="alert_toast_call_denied">Phone permission denied — opening dialer instead</string>
+    <string name="alert_channel_name">Incoming calls</string>
+    <string name="alert_channel_desc">Call-style alerts</string>
+    <string name="alert_mobile">Mobile</string>
+    <string name="bmc_support_link">Support keeping the app ad-free &amp; free</string>
+    <string name="bmc_url" translatable="false">https://buymeacoffee.com/AlcoLert</string>
+</resources>

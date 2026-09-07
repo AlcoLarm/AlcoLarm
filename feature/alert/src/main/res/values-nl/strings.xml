@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="alert_pause_title">PAUZE</string>
+    <string name="alert_pause_subtitle">Tik om stil te zetten &amp; te reflecteren — jij kunt dit</string>
+    <string name="alert_im_ok_close">Het gaat — sluiten</string>
+    <string name="alert_dial_fallback">Bellen</string>
+    <string name="alert_incoming_call">Inkomend gesprek</string>
+    <string name="alert_remember_why">Herinner je waarom je begon</string>
+    <string name="alert_reasons_placeholder">Je redenen verschijnen hier na de setup.</string>
+    <string name="alert_cd_loved_ones_photo">Foto van dierbaren</string>
+    <string name="alert_toast_no_contact">Voeg een noodcontact toe in Instellingen</string>
+    <string name="alert_toast_call_denied">Telefoontoestemming geweigerd — openen van de kiezer</string>
+    <string name="alert_channel_name">Inkomende gesprekken</string>
+    <string name="alert_channel_desc">Waarschuwingen in belstijl</string>
+    <string name="alert_mobile">Mobiel</string>
+    <string name="bmc_support_link">Help de app advertentievrij en gratis te houden</string>
+</resources>

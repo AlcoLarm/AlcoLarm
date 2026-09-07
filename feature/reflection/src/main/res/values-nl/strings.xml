@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="reflection_screen_title">Een moment om te reflecteren</string>
+    <string name="reflection_affirmation_header">Je hebt contact gezocht</string>
+    <string name="reflection_question_turn_around">Hoe zal je leven eruitzien als je nu omkeert?</string>
+    <string name="reflection_question_drink_again">Hoe zal je leven eruitzien als je weer gaat drinken?</string>
+    <string name="reflection_turn_around_placeholder">Schrijf een paar eerlijke woorden — de ochtend, de mensen, hoe je je wilt voelen…</string>
+    <string name="reflection_drink_again_placeholder">Wees eerlijk tegen jezelf — wat volgt er meestal als je weer drinkt…</string>
+    <string name="reflection_closing_title">Je hebt het opgeschreven</string>
+    <string name="reflection_closing_body">Het in je eigen woorden zetten doet ertoe. Houd vast aan wat je net schreef — het is een duidelijke herinnering aan het leven dat je kiest. Je doet het werk.</string>
+    <string name="reflection_affirmation_title">Je deed het juiste</string>
+    <string name="reflection_affirmation_body">Contact zoeken was dapper — ook als ze niet opnamen. Maak je niet druk dat ze nu niet beschikbaar waren. Je maakte de juiste keuze door te stoppen en te proberen. Laten we even stil worden om tot rust te komen.</string>
+    <string name="reflection_reached_title">Je hebt hen bereikt</string>
+    <string name="reflection_reached_body">Dat is precies wat dit moment vroeg. Adem even — je staat er niet alleen voor. Ga naar huis wanneer je er klaar voor bent.</string>
+    <string name="reflection_mandatory_hint">Neem de tijd — tik op Doorgaan wanneer je iets hebt geschreven.</string>
+    <string name="reflection_im_ready">Ik ben er klaar voor</string>
+    <string name="reflection_continue">Doorgaan</string>
+    <string name="reflection_not_now">Nu niet</string>
+    <string name="reflection_cd_loved_ones_photo">Foto van dierbaren</string>
+    <string name="call_outcome_title">Hoe ging het?</string>
+    <string name="call_outcome_body">Je opende de kiezer voor %1$s. Vertel wat er gebeurde — we sluiten aan bij waar jij bent.</string>
+    <string name="call_outcome_them">hen</string>
+    <string name="call_outcome_reached">Ik heb hen bereikt</string>
+    <string name="call_outcome_no_answer">Ze namen niet op</string>
+    <string name="call_outcome_hint">Als je het niet zeker weet, kies “Ze namen niet op” — we vieren alsnog dat je het probeerde.</string>
+    <string name="call_outcome_back_home">Terug naar Home</string>
+</resources>

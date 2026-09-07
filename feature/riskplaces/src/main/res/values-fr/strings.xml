@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="risk_places_title">Où cela vous semble-t-il risqué ?</string>
+    <string name="risk_places_subtitle">Nous n’utilisons que la position en direct — jamais un historique — pour remarquer quand vous êtes à proximité.</string>
+    <string name="action_continue">Continuer</string>
+    <string name="action_save">Enregistrer</string>
+</resources>

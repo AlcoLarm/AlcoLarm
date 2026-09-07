@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="onboarding_title">Que protégez-vous ?</string>
+    <string name="onboarding_subtitle">Choisissez ce qui compte le plus. Ces rappels apparaissent quand vous en avez besoin.</string>
+    <string name="onboarding_health_notes_title">Notes santé (facultatif)</string>
+    <string name="onboarding_health_notes_hint">ex. sommeil, énergie, conseils du médecin</string>
+    <string name="onboarding_family_notes_title">Notes sur vos proches (facultatif)</string>
+    <string name="onboarding_family_notes_hint">Une courte note qui vous ancre</string>
+    <string name="onboarding_add_photo">Ajouter une photo (facultatif)</string>
+    <string name="onboarding_add_another_photo">Ajouter une autre photo (%1$d)</string>
+    <string name="onboarding_photo_saved">Photo enregistrée · appuyer pour retirer</string>
+    <string name="onboarding_remove_last_photo">Retirer la dernière photo</string>
+    <string name="action_continue">Continuer</string>
+    <string name="action_save">Enregistrer</string>
+</resources>

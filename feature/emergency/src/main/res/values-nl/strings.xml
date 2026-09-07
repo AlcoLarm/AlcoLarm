@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="emergency_title">Wie kun je bellen?</string>
+    <string name="emergency_subtitle">Eén vertrouwd persoon. Bij een waarschuwing plaatst Bellen een rechtstreeks gesprek — er wordt verder niets automatisch verzonden.</string>
+    <string name="emergency_name">Naam</string>
+    <string name="emergency_phone">Telefoonnummer</string>
+    <string name="emergency_test_dial">Testdraaien (opent telefoon-app)</string>
+    <string name="emergency_finish">Setup afronden</string>
+    <string name="action_continue">Doorgaan</string>
+    <string name="action_save">Opslaan</string>
+</resources>

@@ -117,10 +117,10 @@ class CallStyleAlertController @Inject constructor(
         if (existing != null) return
         val channel = NotificationChannel(
             CHANNEL_ID,
-            "Incoming calls",
+            context.getString(R.string.alert_channel_name),
             NotificationManager.IMPORTANCE_HIGH,
         ).apply {
-            description = "Call-style alerts"
+            description = context.getString(R.string.alert_channel_desc)
             // Ringtone is played separately so we can loop / stop cleanly.
             setSound(null, null)
             enableVibration(false)
@@ -134,10 +134,10 @@ class CallStyleAlertController @Inject constructor(
         val title = contactDisplayName
             ?.trim()
             ?.takeIf { it.isNotEmpty() }
-            ?: "Incoming call"
+            ?: context.getString(R.string.alert_incoming_call)
         val text = when {
-            !contactPhone.isNullOrBlank() -> maskPhone(contactPhone)
-            else -> "Mobile"
+            !contactPhone.isNullOrBlank() -> maskPhone(contactPhone, context.getString(R.string.alert_mobile))
+            else -> context.getString(R.string.alert_mobile)
         }
 
         val openIntent = Intent().apply {
@@ -190,9 +190,9 @@ class CallStyleAlertController @Inject constructor(
         private const val REQUEST_FULL_SCREEN = 42011
         private const val REQUEST_CONTENT = 42012
 
-        fun maskPhone(raw: String): String {
+        fun maskPhone(raw: String, mobileLabel: String = "Mobile"): String {
             val digits = raw.filter { it.isDigit() }
-            if (digits.length < 4) return "Mobile"
+            if (digits.length < 4) return mobileLabel
             val last = digits.takeLast(4)
             return "••• •• ${last.substring(0, 2)} ${last.substring(2)}"
         }

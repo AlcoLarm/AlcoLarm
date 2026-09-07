@@ -21,6 +21,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -29,8 +30,6 @@ import com.alcolarm.core.designsystem.component.SignalPrimaryButton
 import com.alcolarm.core.designsystem.component.SignalSecondaryButton
 import com.alcolarm.core.designsystem.theme.ClearSignalColors
 import com.alcolarm.core.model.QuitReasonId
-
-private val reasonLabels = QuitReasonId.entries.map { it to it.displayLabel }
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -78,13 +77,13 @@ fun OnboardingScreen(
             .padding(24.dp),
     ) {
         Text(
-            text = "What are you protecting?",
+            text = stringResource(R.string.onboarding_title),
             style = MaterialTheme.typography.headlineLarge,
             color = ClearSignalColors.OnDark,
         )
         Spacer(Modifier.height(8.dp))
         Text(
-            text = "Choose what matters most. These reminders show up when you need them.",
+            text = stringResource(R.string.onboarding_subtitle),
             style = MaterialTheme.typography.bodyLarge,
             color = ClearSignalColors.OnDarkMuted,
         )
@@ -94,9 +93,9 @@ fun OnboardingScreen(
             horizontalArrangement = Arrangement.spacedBy(10.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            reasonLabels.forEach { (id, label) ->
+            QuitReasonId.entries.forEach { id ->
                 SignalChip(
-                    label = label,
+                    label = stringResource(id.labelRes),
                     selected = id in state.selectedReasons,
                     onClick = { onToggleReason(id) },
                 )
@@ -106,7 +105,7 @@ fun OnboardingScreen(
         if (QuitReasonId.HEALTH in state.selectedReasons) {
             Spacer(Modifier.height(24.dp))
             Text(
-                text = "Health notes (optional)",
+                text = stringResource(R.string.onboarding_health_notes_title),
                 style = MaterialTheme.typography.titleLarge,
                 color = ClearSignalColors.OnDark,
             )
@@ -115,7 +114,7 @@ fun OnboardingScreen(
                 value = state.healthNotes,
                 onValueChange = onHealthNotes,
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("e.g. sleep, energy, doctor’s advice") },
+                placeholder = { Text(stringResource(R.string.onboarding_health_notes_hint)) },
                 minLines = 2,
                 colors = fieldColors(),
             )
@@ -124,7 +123,7 @@ fun OnboardingScreen(
         if (QuitReasonId.FAMILY in state.selectedReasons) {
             Spacer(Modifier.height(24.dp))
             Text(
-                text = "Loved ones notes (optional)",
+                text = stringResource(R.string.onboarding_family_notes_title),
                 style = MaterialTheme.typography.titleLarge,
                 color = ClearSignalColors.OnDark,
             )
@@ -133,23 +132,23 @@ fun OnboardingScreen(
                 value = state.familyNotes,
                 onValueChange = onFamilyNotes,
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("A short note that keeps you grounded") },
+                placeholder = { Text(stringResource(R.string.onboarding_family_notes_hint)) },
                 minLines = 2,
                 colors = fieldColors(),
             )
             Spacer(Modifier.height(12.dp))
             SignalSecondaryButton(
                 text = if (state.familyPhotoUris.isEmpty()) {
-                    "Add a photo (optional)"
+                    stringResource(R.string.onboarding_add_photo)
                 } else {
-                    "Add another photo (${state.familyPhotoUris.size})"
+                    stringResource(R.string.onboarding_add_another_photo, state.familyPhotoUris.size)
                 },
                 onClick = onPickPhoto,
             )
             state.familyPhotoUris.forEach { _ ->
                 Spacer(Modifier.height(8.dp))
                 Text(
-                    text = "Photo saved · tap to remove",
+                    text = stringResource(R.string.onboarding_photo_saved),
                     style = MaterialTheme.typography.bodyMedium,
                     color = ClearSignalColors.TealSupport,
                     modifier = Modifier
@@ -159,7 +158,7 @@ fun OnboardingScreen(
             }
             if (state.familyPhotoUris.isNotEmpty()) {
                 SignalSecondaryButton(
-                    text = "Remove last photo",
+                    text = stringResource(R.string.onboarding_remove_last_photo),
                     onClick = { onRemovePhoto(state.familyPhotoUris.last()) },
                 )
             }
@@ -167,7 +166,11 @@ fun OnboardingScreen(
 
         Spacer(Modifier.height(32.dp))
         SignalPrimaryButton(
-            text = if (editMode) "Save" else "Continue",
+            text = if (editMode) {
+                stringResource(R.string.action_save)
+            } else {
+                stringResource(R.string.action_continue)
+            },
             onClick = onContinue,
             enabled = state.selectedReasons.isNotEmpty(),
         )

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="onboarding_title">What are you protecting?</string>
+    <string name="onboarding_subtitle">Choose what matters most. These reminders show up when you need them.</string>
+    <string name="onboarding_health_notes_title">Health notes (optional)</string>
+    <string name="onboarding_health_notes_hint">e.g. sleep, energy, doctor’s advice</string>
+    <string name="onboarding_family_notes_title">Loved ones notes (optional)</string>
+    <string name="onboarding_family_notes_hint">A short note that keeps you grounded</string>
+    <string name="onboarding_add_photo">Add a photo (optional)</string>
+    <string name="onboarding_add_another_photo">Add another photo (%1$d)</string>
+    <string name="onboarding_photo_saved">Photo saved · tap to remove</string>
+    <string name="onboarding_remove_last_photo">Remove last photo</string>
+    <string name="action_continue">Continue</string>
+    <string name="action_save">Save</string>
+</resources>

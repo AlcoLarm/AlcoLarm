@@ -39,16 +39,16 @@ class HomeViewModel @Inject constructor(
             RiskWatchManager.Owner.FOREGROUND_SESSION -> WatchModeUi.FOREGROUND_ONLY
             RiskWatchManager.Owner.NONE -> WatchModeUi.OFF
         }
-        val statusMessage = when {
-            !base.permissionGranted -> base.statusMessage
+        val statusKey = when {
+            !base.permissionGranted -> base.statusKey
             needsBg && base.uiState == MonitoringUiState.WATCHING ->
-                "Background location needed for alerts when app is closed"
-            else -> base.statusMessage
+                MonitoringStatusKey.BACKGROUND_LOCATION_NEEDED
+            else -> base.statusKey
         }
         base.copy(
             watchMode = mode,
             needsBackgroundLocation = needsBg,
-            statusMessage = statusMessage,
+            statusKey = statusKey,
             monitoringActive = base.monitoringActive || owner != RiskWatchManager.Owner.NONE,
         )
     }.stateIn(

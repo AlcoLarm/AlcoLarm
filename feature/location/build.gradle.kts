@@ -28,6 +28,7 @@ android {
 }
 
 dependencies {
+    implementation("androidx.annotation:annotation:1.8.2")
     implementation(project(":core:model"))
     implementation(project(":core:data"))
     implementation(project(":core:designsystem"))

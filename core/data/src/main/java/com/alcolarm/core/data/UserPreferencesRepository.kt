@@ -3,6 +3,7 @@ package com.alcolarm.core.data
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
@@ -123,6 +124,31 @@ class UserPreferencesRepository @Inject constructor(
         }
     }
 
+
+    val disclaimerAccepted: Flow<Boolean> = dataStore.data.map { prefs ->
+        prefs[Keys.DISCLAIMER_ACCEPTED] ?: false
+    }
+
+    suspend fun setDisclaimerAccepted(accepted: Boolean) {
+        dataStore.edit { prefs ->
+            prefs[Keys.DISCLAIMER_ACCEPTED] = accepted
+        }
+    }
+
+    /** How many times the alert/warning screen was shown (real or Simulate). */
+    val alertWarningCount: Flow<Int> = dataStore.data.map { prefs ->
+        prefs[Keys.ALERT_WARNING_COUNT] ?: 0
+    }
+
+    suspend fun incrementAlertWarningCount(): Int {
+        var next = 0
+        dataStore.edit { prefs ->
+            next = (prefs[Keys.ALERT_WARNING_COUNT] ?: 0) + 1
+            prefs[Keys.ALERT_WARNING_COUNT] = next
+        }
+        return next
+    }
+
     private object Keys {
         val ONBOARDING_COMPLETE = booleanPreferencesKey("onboarding_complete")
         val QUIT_REASONS = stringSetPreferencesKey("quit_reasons")
@@ -135,5 +161,7 @@ class UserPreferencesRepository @Inject constructor(
         val BACKGROUND_WATCH_ENABLED = booleanPreferencesKey("background_watch_enabled")
         val REFLECTION_TURN_AROUND = stringPreferencesKey("reflection_turn_around")
         val REFLECTION_DRINK_AGAIN = stringPreferencesKey("reflection_drink_again")
+        val DISCLAIMER_ACCEPTED = booleanPreferencesKey("disclaimer_accepted")
+        val ALERT_WARNING_COUNT = intPreferencesKey("alert_warning_count")
     }
 }

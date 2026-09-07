@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="risk_places_title">Where feels risky?</string>
+    <string name="risk_places_subtitle">We’ll only use live location — never a history trail — to notice when you’re nearby.</string>
+    <string name="action_continue">Continue</string>
+    <string name="action_save">Save</string>
+</resources>
