@@ -4,13 +4,17 @@ Android recovery-support app to help avoid alcohol relapse.
 
 **Stack:** Kotlin · Jetpack Compose · Hilt · multi-module Gradle (Kotlin DSL)  
 **Design:** Quiet Companion (cream/sage) + large soft pause banners + warm amber dial  
-**Version:** `0.6.0-mvp` (versionCode 15)
+**Version:** `0.6.2-mvp` (versionCode 17)
+
+## v0.6.2 — Buy Me a Coffee URL
+
+- **BMC link:** `https://buymeacoffee.com/AlcoLarm` (was AlcoLert)
 
 ## v0.6.0 — Localization, disclaimer, Buy Me a Coffee
 
 - **Locales:** English (default), Dutch (`values-nl`), French (`values-fr`) via system locale
 - **Disclaimer:** first-launch accept gate + Settings → About / Disclaimer; stored as `disclaimer_accepted`
-- **Buy Me a Coffee:** subtle link on the alert screen from the **5th** warning show onward → https://buymeacoffee.com/AlcoLert
+- **Buy Me a Coffee:** subtle link on the alert screen from the **5th** warning show onward → https://buymeacoffee.com/AlcoLarm
 
 ## MVP flow
 
@@ -84,7 +88,7 @@ No `MAPS_API_KEY` in `local.properties` is needed for live detection.
 adb install -r /path/to/AlcoLarm-debug.apk
 ```
 
-`applicationId`: `com.alcolarm.app` · `versionName`: `0.5.6-mvp`
+`applicationId`: `com.alcolarm.app` · `versionName`: `0.6.2-mvp`
 
 ## Design notes (v0.5)
 
