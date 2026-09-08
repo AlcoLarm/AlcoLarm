@@ -59,6 +59,7 @@ class RiskWatchManager @Inject constructor(
     fun onBackgroundServiceStarted() {
         _owner.value = Owner.BACKGROUND_SERVICE
         _needsBackgroundLocation.value = false
+        scope.launch { repository.setWatchEnabled(true) }
         Log.d(TAG, "Background service owns watch")
     }
 
@@ -133,6 +134,7 @@ class RiskWatchManager @Inject constructor(
     fun stopCompletely() {
         scope.launch {
             mutex.withLock {
+                repository.setWatchEnabled(false)
                 if (_owner.value == Owner.BACKGROUND_SERVICE) {
                     RiskWatchService.stop(context)
                 }
@@ -140,6 +142,47 @@ class RiskWatchManager @Inject constructor(
                 locationTracker.clearSample()
                 _owner.value = Owner.NONE
                 Log.d(TAG, "Watch stopped completely")
+            }
+        }
+    }
+
+    /**
+     * Quietly resume [RiskWatchService] after BOOT_COMPLETED / MY_PACKAGE_REPLACED
+     * when the user had monitoring enabled. No UI. Skips (never crashes) if
+     * disclaimer/onboarding incomplete or location permissions missing.
+     */
+    suspend fun resumeWatchAfterBoot() {
+        mutex.withLock {
+            try {
+                val watchOn = repository.watchEnabled.first()
+                if (!watchOn) {
+                    Log.d(TAG, "Boot resume skipped — watch_enabled=false")
+                    return@withLock
+                }
+                val disclaimerOk = repository.disclaimerAccepted.first()
+                val onboardingOk = repository.profile.first().onboardingComplete
+                if (!disclaimerOk || !onboardingOk) {
+                    Log.d(TAG, "Boot resume skipped — disclaimer/onboarding incomplete")
+                    return@withLock
+                }
+                if (!locationTracker.hasLocationPermission()) {
+                    Log.d(TAG, "Boot resume skipped — fine/coarse location missing")
+                    return@withLock
+                }
+                if (!locationTracker.hasBackgroundLocationPermission()) {
+                    Log.d(TAG, "Boot resume skipped — background location missing")
+                    return@withLock
+                }
+                if (_owner.value == Owner.BACKGROUND_SERVICE) {
+                    Log.d(TAG, "Boot resume — already running")
+                    return@withLock
+                }
+                RiskWatchService.start(context)
+                _owner.value = Owner.BACKGROUND_SERVICE
+                repository.setWatchEnabled(true)
+                Log.d(TAG, "Boot resume — RiskWatchService started")
+            } catch (t: Throwable) {
+                Log.w(TAG, "Boot resume failed quietly", t)
             }
         }
     }

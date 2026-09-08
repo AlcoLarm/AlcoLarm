@@ -104,6 +104,20 @@ class UserPreferencesRepository @Inject constructor(
         }
     }
 
+    /**
+     * True when background RiskWatch was actively running (set on FGS start, cleared on user stop).
+     * Used to quietly resume watching after BOOT_COMPLETED / app update.
+     */
+    val watchEnabled: Flow<Boolean> = dataStore.data.map { prefs ->
+        prefs[Keys.WATCH_ENABLED] ?: false
+    }
+
+    suspend fun setWatchEnabled(enabled: Boolean) {
+        dataStore.edit { prefs ->
+            prefs[Keys.WATCH_ENABLED] = enabled
+        }
+    }
+
 
     suspend fun setReflectionTurnAroundAnswer(answer: String) {
         dataStore.edit { prefs ->
@@ -159,6 +173,7 @@ class UserPreferencesRepository @Inject constructor(
         val EMERGENCY_NAME = stringPreferencesKey("emergency_name")
         val EMERGENCY_PHONE = stringPreferencesKey("emergency_phone")
         val BACKGROUND_WATCH_ENABLED = booleanPreferencesKey("background_watch_enabled")
+        val WATCH_ENABLED = booleanPreferencesKey("watch_enabled")
         val REFLECTION_TURN_AROUND = stringPreferencesKey("reflection_turn_around")
         val REFLECTION_DRINK_AGAIN = stringPreferencesKey("reflection_drink_again")
         val DISCLAIMER_ACCEPTED = booleanPreferencesKey("disclaimer_accepted")
