@@ -4,7 +4,19 @@ Android recovery-support app to help avoid alcohol relapse.
 
 **Stack:** Kotlin · Jetpack Compose · Hilt · multi-module Gradle (Kotlin DSL)  
 **Design:** Quiet Companion (cream/sage) + large soft pause banners + warm amber dial  
-**Version:** `0.6.2-mvp` (versionCode 17)
+**Version:** `0.6.3-mvp` (versionCode 18)
+
+
+## v0.6.3 — Pause 30 minutes (snooze)
+
+**Approach:** User-initiated **PAUSE** is a **snooze / mute of nagging**, not a permanent watch off. The foreground service can keep running; risk detection may continue updating status, but **alerts will not re-fire** until the snooze window ends (or the user taps Resume now).
+
+- Persist `alert_snooze_until_epoch_ms` in DataStore (`UserPreferencesRepository.pauseAlertsFor()` → now + 30 min).
+- `RiskWatchEngine` skips alert emission / call-style fire while `now < snoozeUntil` (boot resume still respects an active window).
+- Separate **5-minute post-dismiss cooldown** remains for “I’m OK — close”; user pause is **30 minutes**.
+- Alert / Home PAUSE banner copy: **Pause 30 min** (EN / NL / FR).
+- Home status: **Paused until HH:mm** while snoozed.
+- Settings: **Resume alerts now** clears snooze early when active.
 
 ## v0.6.2 — Buy Me a Coffee URL
 
@@ -23,7 +35,7 @@ Android recovery-support app to help avoid alcohol relapse.
 3. **Risk places** — chips (bar, liquor store, supermarket, …)
 4. **Emergency contact** — name + phone; test dial via `ACTION_DIAL`
 5. **Home** — summary + **live risk watch** (Fused Location + OpenStreetMap Overpass); large soft sage **PAUSE** banner when near risk
-6. **Alert** — loved-ones photo fills most of the screen + call-style ringtone/vibrate; large tappable **PAUSE** banner (silences → optional reflection); round warm amber **Call** button places a direct call via `ACTION_CALL` (`CALL_PHONE`; falls back to `ACTION_DIAL` if denied). No auto-dialer on enter.
+6. **Alert** — loved-ones photo fills most of the screen + call-style ringtone/vibrate; large tappable **Pause 30 min** banner (stops ringtone/vibrate, sets snooze until now+30min → optional reflection); round warm amber **Call** button places a direct call via `ACTION_CALL` (`CALL_PHONE`; falls back to `ACTION_DIAL` if denied). No auto-dialer on enter.
 7. **Dial return** — soft choice *I reached them* / *They didn’t answer* → praise+Home or affirmation + **mandatory** reflection
 8. **Reflection** (`:feature:reflection`) — two fill-in questions the user must write (turn around vs drink again); skippable from Pause (“Not now”); mandatory after call no-answer (affirmation first)
 
@@ -39,7 +51,7 @@ Privacy: **live location only** (current sample + short in-memory ring for still
 | Still | `STOP_SPEED_MPS = 0.7` when speed is present; else displacement &lt; ~14 m over last ~8 s (in-memory ring only) |
 | Dwell | Still **and** nearby continuously for `DWELL_REQUIRED_MS = 5_000` (~5 s); pass-by / leave radius resets the timer |
 | Alert UX | Photo alert screen stays on screen (no auto-dialer). Round Call button uses **`ACTION_CALL`** after `CALL_PHONE` (else one `ACTION_DIAL` fallback). Default **ringtone** + call-like vibration until pause/call/dismiss; high-priority notification with `fullScreenIntent`; lock-screen title is anonymous (**Incoming call** / emergency contact name) — not alcohol/risk wording |
-| Cooldown | 5 min after dismiss |
+| Cooldown | **User pause / snooze: 30 min** (DataStore `alert_snooze_until_epoch_ms`); separate **5 min** after dismiss |
 | Background | **`RiskWatchService`** foreground service (`foregroundServiceType=location`) hosts `RiskWatchEngine`. Home **ON_PAUSE does not stop** monitoring when background watch is active. Ongoing notification: **“AlcoLarm is active” / “Location on”** (never alcohol / relapse / risk / recovery) |
 
 **No Google Places / Maps API key is required.** AlcoLarm stays free by querying OSM Overpass with User-Agent `AlcoLarm/0.5 (recovery support app)`.
@@ -88,7 +100,7 @@ No `MAPS_API_KEY` in `local.properties` is needed for live detection.
 adb install -r /path/to/AlcoLarm-debug.apk
 ```
 
-`applicationId`: `com.alcolarm.app` · `versionName`: `0.6.2-mvp`
+`applicationId`: `com.alcolarm.app` · `versionName`: `0.6.3-mvp`
 
 ## Design notes (v0.5)
 

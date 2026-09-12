@@ -27,4 +27,7 @@
     <string name="settings_emergency_contact">Emergency contact</string>
     <string name="settings_background_monitoring">Background monitoring</string>
     <string name="settings_background_monitoring_desc">Keep watching nearby risk places when the app is closed (needs “all the time” location).</string>
+    <string name="settings_resume_alerts">Resume alerts now</string>
+    <string name="settings_resume_alerts_subtitle">Alerts paused until %1$s — tap to resume</string>
 </resources>
+

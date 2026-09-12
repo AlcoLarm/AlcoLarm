@@ -7,6 +7,7 @@ import com.alcolarm.core.model.RiskPlaceId
 import com.alcolarm.core.model.UserProfile
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
@@ -18,7 +19,7 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    repository: UserPreferencesRepository,
+    private val repository: UserPreferencesRepository,
     private val watchManager: RiskWatchManager,
     private val alertBus: RiskAlertBus,
 ) : ViewModel() {
@@ -33,22 +34,33 @@ class HomeViewModel @Inject constructor(
         watchManager.monitoring,
         watchManager.owner,
         watchManager.needsBackgroundLocation,
-    ) { base, owner, needsBg ->
+        repository.alertSnoozeUntilEpochMs,
+    ) { base, owner, needsBg, snoozeUntil ->
         val mode = when (owner) {
             RiskWatchManager.Owner.BACKGROUND_SERVICE -> WatchModeUi.BACKGROUND
             RiskWatchManager.Owner.FOREGROUND_SESSION -> WatchModeUi.FOREGROUND_ONLY
             RiskWatchManager.Owner.NONE -> WatchModeUi.OFF
         }
+        val now = System.currentTimeMillis()
+        val snoozed = snoozeUntil > now
         val statusKey = when {
             !base.permissionGranted -> base.statusKey
+            snoozed -> MonitoringStatusKey.SNOOZED
             needsBg && base.uiState == MonitoringUiState.WATCHING ->
                 MonitoringStatusKey.BACKGROUND_LOCATION_NEEDED
             else -> base.statusKey
+        }
+        val uiState = when {
+            !base.permissionGranted -> base.uiState
+            snoozed -> MonitoringUiState.SNOOZED
+            else -> base.uiState
         }
         base.copy(
             watchMode = mode,
             needsBackgroundLocation = needsBg,
             statusKey = statusKey,
+            uiState = uiState,
+            snoozeUntilEpochMs = if (snoozed) snoozeUntil else 0L,
             monitoringActive = base.monitoringActive || owner != RiskWatchManager.Owner.NONE,
         )
     }.stateIn(
@@ -83,6 +95,12 @@ class HomeViewModel @Inject constructor(
 
     fun setBackgroundWatchEnabled(enabled: Boolean) {
         watchManager.setBackgroundWatchEnabled(enabled)
+    }
+
+    fun pauseAlertsFor30Minutes() {
+        viewModelScope.launch {
+            repository.pauseAlertsFor()
+        }
     }
 
     fun simulateAlert() {

@@ -43,16 +43,19 @@ fun SettingsRoute(
 ) {
     val profile by viewModel.profile.collectAsStateWithLifecycle()
     val backgroundWatch by viewModel.backgroundWatchEnabled.collectAsStateWithLifecycle()
+    val snoozeUntil by viewModel.alertSnoozeUntilEpochMs.collectAsStateWithLifecycle()
 
     SettingsScreen(
         profile = profile,
         backgroundWatchEnabled = backgroundWatch,
+        snoozeUntilEpochMs = snoozeUntil,
         onBack = onBack,
         onEditReasons = onEditReasons,
         onEditRiskPlaces = onEditRiskPlaces,
         onEditEmergency = onEditEmergency,
         onOpenDisclaimer = onOpenDisclaimer,
         onBackgroundWatchChange = viewModel::setBackgroundWatchEnabled,
+        onResumeAlertsNow = viewModel::resumeAlertsNow,
     )
 }
 
@@ -60,12 +63,14 @@ fun SettingsRoute(
 fun SettingsScreen(
     profile: UserProfile,
     backgroundWatchEnabled: Boolean,
+    snoozeUntilEpochMs: Long = 0L,
     onBack: () -> Unit,
     onEditReasons: () -> Unit,
     onEditRiskPlaces: () -> Unit,
     onEditEmergency: () -> Unit,
     onOpenDisclaimer: () -> Unit,
     onBackgroundWatchChange: (Boolean) -> Unit,
+    onResumeAlertsNow: () -> Unit = {},
 ) {
     val context = LocalContext.current
     val noneSelected = stringResource(R.string.none_selected_yet)
@@ -155,6 +160,18 @@ fun SettingsScreen(
                     uncheckedThumbColor = ClearSignalColors.OnDarkMuted,
                     uncheckedTrackColor = ClearSignalColors.Outline,
                 ),
+            )
+        }
+
+        val now = System.currentTimeMillis()
+        if (snoozeUntilEpochMs > now) {
+            Spacer(Modifier.height(8.dp))
+            val time = java.text.DateFormat.getTimeInstance(java.text.DateFormat.SHORT)
+                .format(java.util.Date(snoozeUntilEpochMs))
+            SettingsRow(
+                title = stringResource(R.string.settings_resume_alerts),
+                subtitle = stringResource(R.string.settings_resume_alerts_subtitle, time),
+                onClick = onResumeAlertsNow,
             )
         }
         Spacer(Modifier.height(24.dp))

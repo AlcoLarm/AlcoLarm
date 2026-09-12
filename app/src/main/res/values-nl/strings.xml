@@ -25,4 +25,7 @@
     <string name="settings_emergency_contact">Noodcontact</string>
     <string name="settings_background_monitoring">Achtergrondmonitoring</string>
     <string name="settings_background_monitoring_desc">Blijf risicoplaatsen in de buurt volgen als de app gesloten is (vereist locatie “altijd”).</string>
+    <string name="settings_resume_alerts">Meldingen nu hervatten</string>
+    <string name="settings_resume_alerts_subtitle">Meldingen gepauzeerd tot %1$s — tik om te hervatten</string>
 </resources>
+

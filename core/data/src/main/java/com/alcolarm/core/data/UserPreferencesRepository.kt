@@ -4,6 +4,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
@@ -139,6 +140,31 @@ class UserPreferencesRepository @Inject constructor(
     }
 
 
+
+    /**
+     * Epoch millis until which risk alerts must not re-fire (user-initiated pause / snooze).
+     * 0 means not snoozed. Watch/FGS can keep running; only alert emission is suppressed.
+     */
+    val alertSnoozeUntilEpochMs: Flow<Long> = dataStore.data.map { prefs ->
+        prefs[Keys.ALERT_SNOOZE_UNTIL_EPOCH_MS] ?: 0L
+    }
+
+    suspend fun setAlertSnoozeUntilEpochMs(epochMs: Long) {
+        dataStore.edit { prefs ->
+            prefs[Keys.ALERT_SNOOZE_UNTIL_EPOCH_MS] = epochMs.coerceAtLeast(0L)
+        }
+    }
+
+    /** Clear snooze early (Settings “Resume now”). */
+    suspend fun clearAlertSnooze() {
+        setAlertSnoozeUntilEpochMs(0L)
+    }
+
+    /** User pause: mute nagging alerts for [durationMs] (default 30 minutes). */
+    suspend fun pauseAlertsFor(durationMs: Long = ALERT_SNOOZE_DURATION_MS) {
+        setAlertSnoozeUntilEpochMs(System.currentTimeMillis() + durationMs)
+    }
+
     val disclaimerAccepted: Flow<Boolean> = dataStore.data.map { prefs ->
         prefs[Keys.DISCLAIMER_ACCEPTED] ?: false
     }
@@ -178,5 +204,11 @@ class UserPreferencesRepository @Inject constructor(
         val REFLECTION_DRINK_AGAIN = stringPreferencesKey("reflection_drink_again")
         val DISCLAIMER_ACCEPTED = booleanPreferencesKey("disclaimer_accepted")
         val ALERT_WARNING_COUNT = intPreferencesKey("alert_warning_count")
+        val ALERT_SNOOZE_UNTIL_EPOCH_MS = longPreferencesKey("alert_snooze_until_epoch_ms")
+    }
+
+    companion object {
+        /** User-initiated pause duration (not the short post-dismiss cooldown). */
+        const val ALERT_SNOOZE_DURATION_MS = 30 * 60_000L
     }
 }

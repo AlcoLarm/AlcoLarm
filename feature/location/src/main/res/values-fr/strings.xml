@@ -7,8 +7,8 @@
 
     <string name="home_title">Vous êtes prêt</string>
     <string name="home_subtitle">Surveillance des lieux à risque à proximité via des données cartographiques ouvertes. Nous ne conservons aucun historique de localisation.</string>
-    <string name="home_pause_title">PAUSE</string>
-    <string name="home_pause_subtitle">Risque à proximité — appuyez pour respirer et réfléchir</string>
+    <string name="home_pause_title">Pause 30 min</string>
+    <string name="home_pause_subtitle">Couper les alertes 30 minutes — appuyez pour respirer et réfléchir</string>
     <string name="home_location_privacy">AlcoLarm utilise votre position uniquement pour vous avertir près des lieux que vous avez marqués comme risqués — nous ne conservons aucun historique.</string>
     <string name="home_allow_location">Autoriser la localisation</string>
     <string name="home_background_rationale">Pour que les alertes fonctionnent lorsque l’app est fermée, autorisez la localisation « tout le temps » dans les réglages système. AlcoLarm affiche un simple avis « Localisation activée » pendant la surveillance — rien sur l’alcool ou le rétablissement.</string>
@@ -27,6 +27,7 @@
     <string name="home_location_off">Localisation : désactivée</string>
     <string name="home_monitoring_background">Surveillance : activée (arrière-plan)</string>
     <string name="home_monitoring_foreground">Surveillance : activée (premier plan)</string>
+    <string name="home_monitoring_snoozed">Alertes en pause (surveillance active)</string>
     <string name="home_monitoring_paused">Surveillance : en pause</string>
     <string name="home_cd_settings">Paramètres</string>
     <string name="home_simulated_place">Lieu simulé</string>
@@ -39,4 +40,6 @@
     <string name="status_near_confirming">À proximité — confirmation que vous êtes arrêté…</string>
     <string name="status_check_failed">Échec de la vérification — nouvel essai</string>
     <string name="status_background_location_needed">Localisation en arrière-plan requise pour les alertes lorsque l’app est fermée</string>
+    <string name="status_paused_until">En pause jusqu’à %1$s</string>
+    <string name="status_paused_until_fallback">En pause</string>
 </resources>
