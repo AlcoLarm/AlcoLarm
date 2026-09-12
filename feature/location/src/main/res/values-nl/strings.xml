@@ -7,8 +7,8 @@
 
     <string name="home_title">Je bent klaar</string>
     <string name="home_subtitle">We volgen risicoplaatsen in de buurt via open kaartgegevens. We bewaren geen locatiegeschiedenis.</string>
-    <string name="home_pause_title">PAUZE</string>
-    <string name="home_pause_subtitle">Risico in de buurt — tik om adem te halen &amp; te reflecteren</string>
+    <string name="home_pause_title">Pauze 30 min</string>
+    <string name="home_pause_subtitle">Meldingen 30 minuten stil — tik om adem te halen &amp; te reflecteren</string>
     <string name="home_location_privacy">AlcoLarm gebruikt je locatie alleen om je te waarschuwen bij plaatsen die jij als riskant markeerde — we bewaren geen locatiegeschiedenis.</string>
     <string name="home_allow_location">Locatie toestaan</string>
     <string name="home_background_rationale">Om waarschuwingen te laten werken als de app gesloten is, sta locatie “altijd” toe in de systeeminstellingen. AlcoLarm toont een eenvoudige melding “Locatie aan” tijdens het volgen — niets over alcohol of herstel.</string>
@@ -27,6 +27,7 @@
     <string name="home_location_off">Locatie: uit</string>
     <string name="home_monitoring_background">Monitoring: aan (achtergrond)</string>
     <string name="home_monitoring_foreground">Monitoring: aan (voorgrond)</string>
+    <string name="home_monitoring_snoozed">Meldingen gepauzeerd (bewaking blijft aan)</string>
     <string name="home_monitoring_paused">Monitoring: gepauzeerd</string>
     <string name="home_cd_settings">Instellingen</string>
     <string name="home_simulated_place">Gesimuleerde plaats</string>
@@ -39,4 +40,6 @@
     <string name="status_near_confirming">In de buurt — bevestigen dat je gestopt bent…</string>
     <string name="status_check_failed">Controle mislukt — opnieuw proberen</string>
     <string name="status_background_location_needed">Achtergrondlocatie nodig voor waarschuwingen als de app gesloten is</string>
+    <string name="status_paused_until">Gepauzeerd tot %1$s</string>
+    <string name="status_paused_until_fallback">Gepauzeerd</string>
 </resources>

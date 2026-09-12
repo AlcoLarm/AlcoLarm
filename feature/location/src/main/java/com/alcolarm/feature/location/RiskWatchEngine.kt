@@ -228,8 +228,27 @@ class RiskWatchEngine @Inject constructor(
         }
 
         val now = System.currentTimeMillis()
+        val snoozeUntilEarly = repository.alertSnoozeUntilEpochMs.first()
+        val snoozedEarly = snoozeUntilEarly > now
         pushSample(sample)
         val still = isStill(now)
+
+        // While snoozed away from a near-risk dwell, still surface pause status.
+        if (snoozedEarly && !still) {
+            maybeAdjustLocationMode(nearCandidate = false)
+            _monitoring.update {
+                it.copy(
+                    permissionGranted = true,
+                    monitoringActive = true,
+                    uiState = MonitoringUiState.SNOOZED,
+                    statusKey = MonitoringStatusKey.SNOOZED,
+                    lastMatchedPlaceName = null,
+                    lastMatchedRisk = null,
+                    snoozeUntilEpochMs = snoozeUntilEarly,
+                )
+            }
+            return
+        }
 
         var overpassError: String? = null
         val needsOverpass = still && (
@@ -252,7 +271,7 @@ class RiskWatchEngine @Inject constructor(
             lastDwellTickAt = 0L
             cachedMatch = null
             maybeAdjustLocationMode(nearCandidate = false)
-            publishMovingOrIdle(overpassError)
+            publishMovingOrIdle(overpassError, snoozeUntilEarly)
             return
         }
 
@@ -261,7 +280,7 @@ class RiskWatchEngine @Inject constructor(
             stillNearMs = 0L
             lastDwellTickAt = 0L
             maybeAdjustLocationMode(nearCandidate = false)
-            publishMovingOrIdle(overpassError)
+            publishMovingOrIdle(overpassError, snoozeUntilEarly)
             return
         }
 
@@ -272,6 +291,25 @@ class RiskWatchEngine @Inject constructor(
         }
         lastDwellTickAt = now
 
+        val snoozeUntil = snoozeUntilEarly
+        val snoozed = snoozedEarly
+        val cooledDown = now - lastAlertDismissedAt >= ALERT_COOLDOWN_MS
+
+        if (snoozed) {
+            _monitoring.update {
+                it.copy(
+                    permissionGranted = true,
+                    monitoringActive = true,
+                    uiState = MonitoringUiState.SNOOZED,
+                    statusKey = MonitoringStatusKey.SNOOZED,
+                    lastMatchedPlaceName = match.placeName,
+                    lastMatchedRisk = match.riskPlaceId,
+                    snoozeUntilEpochMs = snoozeUntil,
+                )
+            }
+            return
+        }
+
         _monitoring.update {
             it.copy(
                 permissionGranted = true,
@@ -280,10 +318,10 @@ class RiskWatchEngine @Inject constructor(
                 statusKey = MonitoringStatusKey.NEAR_CONFIRMING,
                 lastMatchedPlaceName = match.placeName,
                 lastMatchedRisk = match.riskPlaceId,
+                snoozeUntilEpochMs = 0L,
             )
         }
 
-        val cooledDown = now - lastAlertDismissedAt >= ALERT_COOLDOWN_MS
         if (stillNearMs >= DWELL_REQUIRED_MS && cooledDown) {
             Log.d(TAG, "Dwell met stillNearMs=$stillNearMs — alerting")
             stillNearMs = 0L
@@ -317,7 +355,21 @@ class RiskWatchEngine @Inject constructor(
         }
     }
 
-    private fun publishMovingOrIdle(overpassError: String?) {
+    private fun publishMovingOrIdle(overpassError: String?, snoozeUntilEpochMs: Long = 0L) {
+        if (snoozeUntilEpochMs > System.currentTimeMillis()) {
+            _monitoring.update {
+                it.copy(
+                    permissionGranted = true,
+                    monitoringActive = true,
+                    uiState = MonitoringUiState.SNOOZED,
+                    statusKey = MonitoringStatusKey.SNOOZED,
+                    lastMatchedPlaceName = null,
+                    lastMatchedRisk = null,
+                    snoozeUntilEpochMs = snoozeUntilEpochMs,
+                )
+            }
+            return
+        }
         if (overpassError != null) {
             _monitoring.update {
                 it.copy(
@@ -325,6 +377,7 @@ class RiskWatchEngine @Inject constructor(
                     monitoringActive = true,
                     uiState = MonitoringUiState.CHECK_ERROR,
                     statusKey = MonitoringStatusKey.CHECK_FAILED,
+                    snoozeUntilEpochMs = 0L,
                 )
             }
         } else {
@@ -336,6 +389,7 @@ class RiskWatchEngine @Inject constructor(
                     statusKey = MonitoringStatusKey.WATCHING,
                     lastMatchedPlaceName = null,
                     lastMatchedRisk = null,
+                    snoozeUntilEpochMs = 0L,
                 )
             }
         }

@@ -9,6 +9,7 @@ enum class MonitoringUiState {
     WATCHING,
     NEAR_RISK,
     CHECK_ERROR,
+    SNOOZED,
 }
 
 enum class WatchModeUi {
@@ -27,6 +28,7 @@ enum class MonitoringStatusKey {
     NEAR_CONFIRMING,
     CHECK_FAILED,
     BACKGROUND_LOCATION_NEEDED,
+    SNOOZED,
     ;
 
     @get:StringRes
@@ -40,6 +42,7 @@ enum class MonitoringStatusKey {
             NEAR_CONFIRMING -> R.string.status_near_confirming
             CHECK_FAILED -> R.string.status_check_failed
             BACKGROUND_LOCATION_NEEDED -> R.string.status_background_location_needed
+            SNOOZED -> R.string.status_paused_until_fallback
         }
 }
 
@@ -52,4 +55,6 @@ data class HomeMonitoringUi(
     val statusKey: MonitoringStatusKey = MonitoringStatusKey.PERMISSION_NEEDED,
     val lastMatchedPlaceName: String? = null,
     val lastMatchedRisk: RiskPlaceId? = null,
+    /** Non-zero while user pause / snooze window is active. */
+    val snoozeUntilEpochMs: Long = 0L,
 )

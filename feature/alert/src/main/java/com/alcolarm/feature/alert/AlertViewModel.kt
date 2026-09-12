@@ -63,6 +63,13 @@ class AlertViewModel @Inject constructor(
         callStyleAlert.stop()
     }
 
+    /** User PAUSE: silence for 30 minutes (snooze), then optional reflection. */
+    fun pauseAlertsFor30Minutes() {
+        viewModelScope.launch {
+            repository.pauseAlertsFor()
+        }
+    }
+
     fun markDialStarted() {
         dialReturnTracker.markDialStarted()
     }

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="alert_pause_title">PAUSE</string>
-    <string name="alert_pause_subtitle">Appuyez pour couper le son et réfléchir — vous y arrivez</string>
+    <string name="alert_pause_title">Pause 30 min</string>
+    <string name="alert_pause_subtitle">Couper les alertes 30 minutes — puis réflexion optionnelle</string>
     <string name="alert_im_ok_close">Ça va — fermer</string>
     <string name="alert_dial_fallback">Appeler</string>
     <string name="alert_incoming_call">Appel entrant</string>

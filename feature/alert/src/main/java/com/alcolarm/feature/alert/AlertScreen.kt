@@ -130,6 +130,7 @@ fun AlertRoute(
         showBuyMeCoffee = alertWarningCount >= AlertViewModel.BMC_SHOW_FROM_COUNT,
         onPause = {
             viewModel.stopCallStyleAlert()
+            viewModel.pauseAlertsFor30Minutes()
             onPauseReflect()
         },
         onDial = {

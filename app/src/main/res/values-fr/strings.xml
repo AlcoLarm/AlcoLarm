@@ -25,4 +25,7 @@
     <string name="settings_emergency_contact">Contact d’urgence</string>
     <string name="settings_background_monitoring">Surveillance en arrière-plan</string>
     <string name="settings_background_monitoring_desc">Continuer à surveiller les lieux à risque à proximité lorsque l’app est fermée (nécessite la localisation « tout le temps »).</string>
+    <string name="settings_resume_alerts">Reprendre les alertes</string>
+    <string name="settings_resume_alerts_subtitle">Alertes en pause jusqu’à %1$s — appuyez pour reprendre</string>
 </resources>
+

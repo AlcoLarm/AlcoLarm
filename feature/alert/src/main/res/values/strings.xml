@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="alert_pause_title">PAUSE</string>
-    <string name="alert_pause_subtitle">Tap to silence &amp; reflect — you’ve got this</string>
+    <string name="alert_pause_title">Pause 30 min</string>
+    <string name="alert_pause_subtitle">Silence alerts for 30 minutes — then optional reflect</string>
     <string name="alert_im_ok_close">I’m OK — close</string>
     <string name="alert_dial_fallback">Dial</string>
     <string name="alert_incoming_call">Incoming call</string>

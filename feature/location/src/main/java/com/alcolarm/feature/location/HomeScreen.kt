@@ -49,6 +49,8 @@ import com.alcolarm.core.designsystem.component.SignalPrimaryButton
 import com.alcolarm.core.designsystem.component.SignalSecondaryButton
 import com.alcolarm.core.designsystem.theme.ClearSignalColors
 import com.alcolarm.core.model.UserProfile
+import java.text.DateFormat
+import java.util.Date
 
 @Composable
 fun HomeRoute(
@@ -176,11 +178,15 @@ fun HomeRoute(
                 notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
             }
         },
-        onPauseReflect = onPauseReflect,
+        onPauseReflect = {
+            viewModel.pauseAlertsFor30Minutes()
+            onPauseReflect()
+        },
         onOpenSettings = onOpenSettings,
         onSimulateAlert = { viewModel.simulateAlert() },
     )
 }
+
 
 private fun hasNotificationPermission(context: android.content.Context): Boolean {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return true
@@ -351,6 +357,7 @@ fun HomeScreen(
 private fun MonitoringCard(monitoring: HomeMonitoringUi) {
     val accent = when (monitoring.uiState) {
         MonitoringUiState.NEAR_RISK -> ClearSignalColors.Amber
+        MonitoringUiState.SNOOZED -> ClearSignalColors.SoftBlue
         MonitoringUiState.PERMISSION_NEEDED,
         MonitoringUiState.CHECK_ERROR,
         -> ClearSignalColors.OnDarkMuted
@@ -368,8 +375,18 @@ private fun MonitoringCard(monitoring: HomeMonitoringUi) {
             color = ClearSignalColors.SoftBlue,
         )
         Spacer(Modifier.height(6.dp))
+        val now = System.currentTimeMillis()
+        val snoozeActive = monitoring.snoozeUntilEpochMs > now
+        val statusText = if (snoozeActive) {
+            val time = DateFormat.getTimeInstance(DateFormat.SHORT).format(
+                Date(monitoring.snoozeUntilEpochMs),
+            )
+            stringResource(R.string.status_paused_until, time)
+        } else {
+            stringResource(monitoring.statusKey.labelRes)
+        }
         Text(
-            text = stringResource(monitoring.statusKey.labelRes),
+            text = statusText,
             style = MaterialTheme.typography.bodyLarge,
             color = accent,
         )
@@ -377,6 +394,7 @@ private fun MonitoringCard(monitoring: HomeMonitoringUi) {
         Text(
             text = when {
                 !monitoring.permissionGranted -> stringResource(R.string.home_location_off)
+                snoozeActive -> stringResource(R.string.home_monitoring_snoozed)
                 monitoring.watchMode == WatchModeUi.BACKGROUND ->
                     stringResource(R.string.home_monitoring_background)
                 monitoring.watchMode == WatchModeUi.FOREGROUND_ONLY ||

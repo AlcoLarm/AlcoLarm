@@ -9,11 +9,12 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-    repository: UserPreferencesRepository,
+    private val repository: UserPreferencesRepository,
     private val watchManager: RiskWatchManager,
 ) : ViewModel() {
 
@@ -29,7 +30,19 @@ class SettingsViewModel @Inject constructor(
         initialValue = true,
     )
 
+    val alertSnoozeUntilEpochMs: StateFlow<Long> = repository.alertSnoozeUntilEpochMs.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = 0L,
+    )
+
     fun setBackgroundWatchEnabled(enabled: Boolean) {
         watchManager.setBackgroundWatchEnabled(enabled)
+    }
+
+    fun resumeAlertsNow() {
+        viewModelScope.launch {
+            repository.clearAlertSnooze()
+        }
     }
 }
